@@ -1,0 +1,122 @@
+diff --git a/node_modules/web3-eth/README.md b/node_modules/web3-eth/README.md
+index da5fba7..6d8607f 100644
+--- a/node_modules/web3-eth/README.md
++++ b/node_modules/web3-eth/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-eth) or using [Yarn](https://yarnpkg.com/package/web3-eth)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-eth
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-eth
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -40,3 +32,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3-eth.js
+ [npm-image]: https://img.shields.io/npm/v/web3-eth.svg
+ [npm-url]: https://npmjs.org/package/web3-eth
++
+diff --git a/node_modules/web3-eth/types/index.d.ts b/node_modules/web3-eth/types/index.d.ts
+index 5c8a551..b7499a0 100644
+--- a/node_modules/web3-eth/types/index.d.ts
++++ b/node_modules/web3-eth/types/index.d.ts
+@@ -36,8 +36,7 @@ import {
+     chain,
+     BlockNumber,
+     LogsOptions,
+-    PastLogsOptions,
+-    AccessTuple
++    PastLogsOptions
+ } from 'web3-core';
+ import {Subscription} from 'web3-core-subscriptions';
+ import {AbiCoder} from 'web3-eth-abi';
+@@ -386,9 +385,7 @@ export class Eth {
+     ): Promise<string[]>;
+ 
+     submitWork(
+-        nonce: string,
+-        powHash: string,
+-        digest: string,
++        data: [string, string, string],
+         callback?: (error: Error, result: boolean) => void
+     ): Promise<boolean>;
+ 
+@@ -455,6 +452,11 @@ export interface BlockTransactionString extends BlockTransactionBase {
+     transactions: string[];
+ }
+ 
++export interface AccessTuple {
++    address: string;
++    storageKeys: string[];
++}
++
+ export interface CreateAccessList {
+     accessList: AccessTuple[];
+     error?: string;
+@@ -483,5 +485,3 @@ export interface FeeHistoryResult {
+     oldestBlock: number;
+     reward: string[][];
+ }
+-
+-export default Eth
+diff --git a/node_modules/web3-eth/types/tests/eth.tests.ts b/node_modules/web3-eth/types/tests/eth.tests.ts
+index 1a8c1be..818926c 100644
+--- a/node_modules/web3-eth/types/tests/eth.tests.ts
++++ b/node_modules/web3-eth/types/tests/eth.tests.ts
+@@ -19,7 +19,7 @@
+  */
+ 
+ import {Log} from 'web3-core';
+-import EthDefault, {
++import {
+     BlockTransactionObject,
+     BlockTransactionString,
+     BlockHeader,
+@@ -38,9 +38,6 @@ import EthDefault, {
+ import BN = require('bn.js');
+ import BigNumber from 'bignumber.js';
+ 
+-// $ExpectType Eth
+-const eth_default_empty = new EthDefault();
+-
+ // $ExpectType Eth
+ const eth_empty = new Eth();
+ 
+@@ -580,17 +577,19 @@ eth.getWork();
+ eth.getWork((error: Error, result: string[]) => {});
+ 
+ // $ExpectType Promise<boolean>
+-eth.submitWork(
++eth.submitWork([
+     '0x0000000000000001',
+     '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+     '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000'
+-);
++]);
+ 
+ // $ExpectType Promise<boolean>
+ eth.submitWork(
+-    '0x0000000000000001',
+-    '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+-    '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
++    [
++        '0x0000000000000001',
++        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
++        '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000'
++    ],
+     (error: Error, result: boolean) => {}
+ );
+ 

@@ -1,0 +1,229 @@
+diff --git a/node_modules/web3-core-helpers/README.md b/node_modules/web3-core-helpers/README.md
+index 7ad17b7..8ae21c1 100644
+--- a/node_modules/web3-core-helpers/README.md
++++ b/node_modules/web3-core-helpers/README.md
+@@ -8,20 +8,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-core-helpers) or using [Yarn](https://yarnpkg.com/package/web3-core-helpers)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-core-helpers
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-core-helpers
+-```
+-
+ ## Usage
+ 
+ ```js
+diff --git a/node_modules/web3-core-helpers/lib/errors.js b/node_modules/web3-core-helpers/lib/errors.js
+index 3705753..821fe25 100644
+--- a/node_modules/web3-core-helpers/lib/errors.js
++++ b/node_modules/web3-core-helpers/lib/errors.js
+@@ -67,9 +67,6 @@ module.exports = {
+         if (event) {
+             error.code = event.code;
+             error.reason = event.reason;
+-            if (event.description) {
+-                error.description = event.description;
+-            }
+         }
+         return error;
+     },
+diff --git a/node_modules/web3-core-helpers/lib/formatters.js b/node_modules/web3-core-helpers/lib/formatters.js
+index fc1e465..adaa74a 100644
+--- a/node_modules/web3-core-helpers/lib/formatters.js
++++ b/node_modules/web3-core-helpers/lib/formatters.js
+@@ -139,7 +139,7 @@ var _txInputFormatter = function (options) {
+     if (options.maxPriorityFeePerGas || options.maxFeePerGas) {
+         delete options.gasPrice;
+     }
+-    ['gasPrice', 'gas', 'value', 'maxPriorityFeePerGas', 'maxFeePerGas', 'nonce', 'type'].filter(function (key) {
++    ['gasPrice', 'gas', 'value', 'maxPriorityFeePerGas', 'maxFeePerGas', 'nonce'].filter(function (key) {
+         return options[key] !== undefined;
+     }).forEach(function (key) {
+         options[key] = utils.numberToHex(options[key]);
+@@ -197,23 +197,21 @@ var inputSignFormatter = function (data) {
+  * @param {Object} tx
+  * @returns {Object}
+  */
+-var outputTransactionFormatter = function (tx, hexFormat) {
+-    if (!hexFormat) {
+-        if (tx.blockNumber !== null)
+-            tx.blockNumber = utils.hexToNumber(tx.blockNumber);
+-        if (tx.transactionIndex !== null)
+-            tx.transactionIndex = utils.hexToNumber(tx.transactionIndex);
+-        tx.nonce = utils.hexToNumber(tx.nonce);
+-        tx.gas = utils.hexToNumber(tx.gas);
+-        if (tx.type)
+-            tx.type = utils.hexToNumber(tx.type);
+-    }
++var outputTransactionFormatter = function (tx) {
++    if (tx.blockNumber !== null)
++        tx.blockNumber = utils.hexToNumber(tx.blockNumber);
++    if (tx.transactionIndex !== null)
++        tx.transactionIndex = utils.hexToNumber(tx.transactionIndex);
++    tx.nonce = utils.hexToNumber(tx.nonce);
++    tx.gas = utils.hexToNumber(tx.gas);
+     if (tx.gasPrice)
+         tx.gasPrice = outputBigNumberFormatter(tx.gasPrice);
+     if (tx.maxFeePerGas)
+         tx.maxFeePerGas = outputBigNumberFormatter(tx.maxFeePerGas);
+     if (tx.maxPriorityFeePerGas)
+         tx.maxPriorityFeePerGas = outputBigNumberFormatter(tx.maxPriorityFeePerGas);
++    if (tx.type)
++        tx.type = utils.hexToNumber(tx.type);
+     tx.value = outputBigNumberFormatter(tx.value);
+     if (tx.to && utils.isAddress(tx.to)) { // tx.to could be `0x0` or `null` while contract creation
+         tx.to = utils.toChecksumAddress(tx.to);
+@@ -266,16 +264,14 @@ var outputTransactionReceiptFormatter = function (receipt) {
+  * @param {Object} block
+  * @returns {Object}
+  */
+-var outputBlockFormatter = function (block, hexFormat) {
+-    if (!hexFormat) {
+-        // transform to number
+-        block.gasLimit = utils.hexToNumber(block.gasLimit);
+-        block.gasUsed = utils.hexToNumber(block.gasUsed);
+-        block.size = utils.hexToNumber(block.size);
+-        block.timestamp = utils.hexToNumber(block.timestamp);
+-        if (block.number !== null)
+-            block.number = utils.hexToNumber(block.number);
+-    }
++var outputBlockFormatter = function (block) {
++    // transform to number
++    block.gasLimit = utils.hexToNumber(block.gasLimit);
++    block.gasUsed = utils.hexToNumber(block.gasUsed);
++    block.size = utils.hexToNumber(block.size);
++    block.timestamp = utils.hexToNumber(block.timestamp);
++    if (block.number !== null)
++        block.number = utils.hexToNumber(block.number);
+     if (block.difficulty)
+         block.difficulty = outputBigNumberFormatter(block.difficulty);
+     if (block.totalDifficulty)
+@@ -283,7 +279,7 @@ var outputBlockFormatter = function (block, hexFormat) {
+     if (Array.isArray(block.transactions)) {
+         block.transactions.forEach(function (item) {
+             if (!(typeof item === 'string'))
+-                return outputTransactionFormatter(item, hexFormat);
++                return outputTransactionFormatter(item);
+         });
+     }
+     if (block.miner)
+diff --git a/node_modules/web3-core-helpers/src/errors.js b/node_modules/web3-core-helpers/src/errors.js
+index b8f90ee..9f16f67 100644
+--- a/node_modules/web3-core-helpers/src/errors.js
++++ b/node_modules/web3-core-helpers/src/errors.js
+@@ -73,9 +73,6 @@ module.exports = {
+         if (event) {
+             error.code = event.code;
+             error.reason = event.reason;
+-            if(event.description) {
+-                error.description = event.description;
+-            }
+         }
+ 
+         return error;
+diff --git a/node_modules/web3-core-helpers/src/formatters.js b/node_modules/web3-core-helpers/src/formatters.js
+index 1c3ca61..77b2e5f 100644
+--- a/node_modules/web3-core-helpers/src/formatters.js
++++ b/node_modules/web3-core-helpers/src/formatters.js
+@@ -162,7 +162,7 @@ var _txInputFormatter = function (options) {
+         delete options.gasPrice;
+     }
+ 
+-    ['gasPrice', 'gas', 'value', 'maxPriorityFeePerGas', 'maxFeePerGas', 'nonce', 'type'].filter(function (key) {
++    ['gasPrice', 'gas', 'value', 'maxPriorityFeePerGas', 'maxFeePerGas', 'nonce'].filter(function (key) {
+         return options[key] !== undefined;
+     }).forEach(function (key) {
+         options[key] = utils.numberToHex(options[key]);
+@@ -235,23 +235,21 @@ var inputSignFormatter = function (data) {
+  * @param {Object} tx
+  * @returns {Object}
+  */
+-var outputTransactionFormatter = function (tx, hexFormat) {
+-    if (!hexFormat) {
+-        if (tx.blockNumber !== null)
+-            tx.blockNumber = utils.hexToNumber(tx.blockNumber);
+-        if (tx.transactionIndex !== null)
+-            tx.transactionIndex = utils.hexToNumber(tx.transactionIndex);
+-        tx.nonce = utils.hexToNumber(tx.nonce);
+-        tx.gas = utils.hexToNumber(tx.gas);
+-        if (tx.type)
+-            tx.type = utils.hexToNumber(tx.type);
+-    }
++var outputTransactionFormatter = function (tx) {
++    if (tx.blockNumber !== null)
++        tx.blockNumber = utils.hexToNumber(tx.blockNumber);
++    if (tx.transactionIndex !== null)
++        tx.transactionIndex = utils.hexToNumber(tx.transactionIndex);
++    tx.nonce = utils.hexToNumber(tx.nonce);
++    tx.gas = utils.hexToNumber(tx.gas);
+     if (tx.gasPrice)
+         tx.gasPrice = outputBigNumberFormatter(tx.gasPrice);
+     if (tx.maxFeePerGas)
+         tx.maxFeePerGas = outputBigNumberFormatter(tx.maxFeePerGas);
+     if (tx.maxPriorityFeePerGas)
+         tx.maxPriorityFeePerGas = outputBigNumberFormatter(tx.maxPriorityFeePerGas);
++    if (tx.type)
++        tx.type = utils.hexToNumber(tx.type);
+     tx.value = outputBigNumberFormatter(tx.value);
+ 
+     if (tx.to && utils.isAddress(tx.to)) { // tx.to could be `0x0` or `null` while contract creation
+@@ -312,17 +310,15 @@ var outputTransactionReceiptFormatter = function (receipt) {
+  * @param {Object} block
+  * @returns {Object}
+  */
+-var outputBlockFormatter = function (block, hexFormat) {
+-
+-    if (!hexFormat) {
+-        // transform to number
+-        block.gasLimit = utils.hexToNumber(block.gasLimit);
+-        block.gasUsed = utils.hexToNumber(block.gasUsed);
+-        block.size = utils.hexToNumber(block.size);
+-        block.timestamp = utils.hexToNumber(block.timestamp);
+-        if (block.number !== null)
+-            block.number = utils.hexToNumber(block.number);
+-    }
++var outputBlockFormatter = function (block) {
++
++    // transform to number
++    block.gasLimit = utils.hexToNumber(block.gasLimit);
++    block.gasUsed = utils.hexToNumber(block.gasUsed);
++    block.size = utils.hexToNumber(block.size);
++    block.timestamp = utils.hexToNumber(block.timestamp);
++    if (block.number !== null)
++        block.number = utils.hexToNumber(block.number);
+ 
+     if (block.difficulty)
+         block.difficulty = outputBigNumberFormatter(block.difficulty);
+@@ -332,7 +328,7 @@ var outputBlockFormatter = function (block, hexFormat) {
+     if (Array.isArray(block.transactions)) {
+         block.transactions.forEach(function (item) {
+             if (!(typeof item === 'string'))
+-                return outputTransactionFormatter(item, hexFormat);
++                return outputTransactionFormatter(item);
+         });
+     }
+ 
+diff --git a/node_modules/web3-core-helpers/types/index.d.ts b/node_modules/web3-core-helpers/types/index.d.ts
+index 6c1b72a..be1e755 100644
+--- a/node_modules/web3-core-helpers/types/index.d.ts
++++ b/node_modules/web3-core-helpers/types/index.d.ts
+@@ -34,7 +34,7 @@ export class formatters {
+ 
+     static inputBlockNumberFormatter(blockNumber: string | number): string | number;
+ 
+-    static outputBlockFormatter(block: any, hexFormat?: boolean): any; // TODO: Create Block interface
++    static outputBlockFormatter(block: any): any; // TODO: Create Block interface
+ 
+     static txInputFormatter(txObject: any): any;
+ 

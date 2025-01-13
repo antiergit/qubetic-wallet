@@ -1,0 +1,239 @@
+diff --git a/node_modules/web3-providers-http/README.md b/node_modules/web3-providers-http/README.md
+index d2e991d..7b0c21b 100644
+--- a/node_modules/web3-providers-http/README.md
++++ b/node_modules/web3-providers-http/README.md
+@@ -8,20 +8,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-providers-http) or using [Yarn](https://yarnpkg.com/package/web3-providers-http)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-providers-http
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-providers-http
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -47,3 +39,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/dm/web3-providers-http.svg
+ [npm-url]: https://npmjs.org/package/web3-providers-http
++
+diff --git a/node_modules/web3-providers-http/lib/index.js b/node_modules/web3-providers-http/lib/index.js
+index db16f88..ba5c9ae 100644
+--- a/node_modules/web3-providers-http/lib/index.js
++++ b/node_modules/web3-providers-http/lib/index.js
+@@ -23,15 +23,12 @@
+  * @date 2015
+  */
+ var errors = require('web3-core-helpers').errors;
+-var fetch = require('cross-fetch');
+ var http = require('http');
+ var https = require('https');
+ // Apply missing polyfill for IE
++require('cross-fetch/polyfill');
+ require('es6-promise').polyfill();
+-// import abortController if abortController is not included in node
+-if (typeof global !== "undefined" && !global.AbortController) {
+-    require('abortcontroller-polyfill/dist/polyfill-patch-fetch');
+-}
++require('abortcontroller-polyfill/dist/polyfill-patch-fetch');
+ /**
+  * HttpProvider should be used to send rpc calls over http
+  */
+@@ -41,7 +38,6 @@ var HttpProvider = function HttpProvider(host, options) {
+     this.timeout = options.timeout || 0;
+     this.headers = options.headers;
+     this.agent = options.agent;
+-    this.forceGlobalFetch = options.forceGlobalFetch || false;
+     this.connected = false;
+     // keepAlive is true unless explicitly set to false
+     const keepAlive = options.keepAlive !== false;
+@@ -69,7 +65,6 @@ HttpProvider.prototype.send = function (payload, callback) {
+     };
+     var headers = {};
+     var controller;
+-    var fetchFunc = this.forceGlobalFetch ? globalThis.fetch : fetch;
+     if (typeof AbortController !== 'undefined') {
+         controller = new AbortController();
+     }
+@@ -125,18 +120,10 @@ HttpProvider.prototype.send = function (payload, callback) {
+             clearTimeout(this.timeoutId);
+         }
+         // Response is a stream data so should be awaited for json response
+-        response
+-            .json()
+-            .then(function (data) {
++        response.json().then(function (data) {
+             callback(null, data);
+-        }, function () {
+-            response
+-                .text()
+-                .then(function (text) {
+-                callback(errors.InvalidResponse(text));
+-            }, function () {
+-                callback(errors.InvalidResponse(""));
+-            });
++        }).catch(function (error) {
++            callback(errors.InvalidResponse(response));
+         });
+     };
+     var failed = function (error) {
+@@ -145,12 +132,12 @@ HttpProvider.prototype.send = function (payload, callback) {
+         }
+         if (error.name === 'AbortError') {
+             callback(errors.ConnectionTimeout(this.timeout));
+-            return;
+         }
+-        callback(errors.InvalidConnection(this.host, error));
++        callback(errors.InvalidConnection(this.host));
+     };
+-    fetchFunc(this.host, options)
+-        .then(success.bind(this), failed.bind(this));
++    fetch(this.host, options)
++        .then(success.bind(this))
++        .catch(failed.bind(this));
+ };
+ HttpProvider.prototype.disconnect = function () {
+     //NO OP
+diff --git a/node_modules/web3-providers-http/src/index.js b/node_modules/web3-providers-http/src/index.js
+index 7a67af2..4169ed6 100644
+--- a/node_modules/web3-providers-http/src/index.js
++++ b/node_modules/web3-providers-http/src/index.js
+@@ -24,17 +24,13 @@
+  */
+ 
+ var errors = require('web3-core-helpers').errors;
+-var fetch = require('cross-fetch');
+ var http = require('http');
+ var https = require('https');
+ 
+ // Apply missing polyfill for IE
++require('cross-fetch/polyfill');
+ require('es6-promise').polyfill();
+-
+-// import abortController if abortController is not included in node
+-if(typeof global !== "undefined" && !global.AbortController){
+-    require('abortcontroller-polyfill/dist/polyfill-patch-fetch');
+-}
++require('abortcontroller-polyfill/dist/polyfill-patch-fetch');
+ 
+ /**
+  * HttpProvider should be used to send rpc calls over http
+@@ -46,7 +42,6 @@ var HttpProvider = function HttpProvider(host, options) {
+     this.timeout = options.timeout || 0;
+     this.headers = options.headers;
+     this.agent = options.agent;
+-    this.forceGlobalFetch = options.forceGlobalFetch || false;
+     this.connected = false;
+ 
+     // keepAlive is true unless explicitly set to false
+@@ -75,7 +70,6 @@ HttpProvider.prototype.send = function (payload, callback) {
+     };
+     var headers = {};
+     var controller;
+-    var fetchFunc = this.forceGlobalFetch ? globalThis.fetch : fetch;
+ 
+     if (typeof AbortController !== 'undefined') {
+         controller = new AbortController();
+@@ -140,25 +134,11 @@ HttpProvider.prototype.send = function (payload, callback) {
+         }
+ 
+         // Response is a stream data so should be awaited for json response
+-        response
+-            .json()
+-            .then(
+-                function (data) {
+-                    callback(null, data);
+-                },
+-                function () {
+-                    response
+-                        .text()
+-                        .then(
+-                            function (text) {
+-                                callback(errors.InvalidResponse(text));
+-                            },
+-                            function () {
+-                                callback(errors.InvalidResponse(""));
+-                            }
+-                        );
+-                }
+-            );
++        response.json().then(function (data) {
++            callback(null, data);
++        }).catch(function (error) {
++            callback(errors.InvalidResponse(response));
++        });
+     };
+ 
+     var failed = function (error) {
+@@ -168,14 +148,14 @@ HttpProvider.prototype.send = function (payload, callback) {
+ 
+         if (error.name === 'AbortError') {
+             callback(errors.ConnectionTimeout(this.timeout));
+-            return;
+         }
+ 
+-        callback(errors.InvalidConnection(this.host, error));
+-    };
++        callback(errors.InvalidConnection(this.host));
++    }
+ 
+-    fetchFunc(this.host, options)
+-        .then(success.bind(this), failed.bind(this));
++    fetch(this.host, options)
++        .then(success.bind(this))
++        .catch(failed.bind(this));
+ };
+ 
+ HttpProvider.prototype.disconnect = function () {
+diff --git a/node_modules/web3-providers-http/types/index.d.ts b/node_modules/web3-providers-http/types/index.d.ts
+index c915613..297b02d 100644
+--- a/node_modules/web3-providers-http/types/index.d.ts
++++ b/node_modules/web3-providers-http/types/index.d.ts
+@@ -49,7 +49,6 @@ export class HttpProvider extends HttpProviderBase {
+     timeout: number;
+     headers?: HttpHeader[];
+     agent?: HttpProviderAgent;
+-    forceGlobalFetch?: boolean;
+     connected: boolean;
+ 
+     constructor(host?: string, options?: HttpProviderOptions);
+@@ -64,5 +63,3 @@ export class HttpProvider extends HttpProviderBase {
+     disconnect(): boolean;
+     supportsSubscriptions(): boolean;
+ }
+-
+-export default HttpProvider
+diff --git a/node_modules/web3-providers-http/types/tests/web3-provider-http-tests.ts b/node_modules/web3-providers-http/types/tests/web3-provider-http-tests.ts
+index 5f8f2a1..0750406 100644
+--- a/node_modules/web3-providers-http/types/tests/web3-provider-http-tests.ts
++++ b/node_modules/web3-providers-http/types/tests/web3-provider-http-tests.ts
+@@ -22,16 +22,9 @@
+ 
+ import * as http from 'http';
+ import * as https from 'https';
+-import HttpProviderDefault, { HttpProvider } from 'web3-providers';
++import { HttpProvider } from 'web3-providers';
+ import { JsonRpcResponse } from 'web3-core-helpers';
+ 
+-// $ExpectType HttpProvider
+-const http_provider_default_empty = new HttpProviderDefault();
+-
+-// $ExpectType HttpProvider
+-const http_provider_empty = new HttpProvider();
+-
+-// $ExpectType HttpProvider
+ const httpProvider = new HttpProvider('http://localhost:8545', {
+     timeout: 20000,
+     headers: [

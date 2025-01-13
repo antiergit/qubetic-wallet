@@ -1,0 +1,262 @@
+diff --git a/node_modules/web3-providers-ws/README.md b/node_modules/web3-providers-ws/README.md
+index 39db580..3fae667 100644
+--- a/node_modules/web3-providers-ws/README.md
++++ b/node_modules/web3-providers-ws/README.md
+@@ -8,20 +8,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-providers-ws) or using [Yarn](https://yarnpkg.com/package/web3-providers-ws)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-providers-ws
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-providers-ws
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -67,3 +59,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-providers-ws.svg
+ [npm-url]: https://npmjs.org/package/web3-providers-ws
++
+diff --git a/node_modules/web3-providers-ws/lib/index.js b/node_modules/web3-providers-ws/lib/index.js
+index ca9fc9e..c414f3e 100644
+--- a/node_modules/web3-providers-ws/lib/index.js
++++ b/node_modules/web3-providers-ws/lib/index.js
+@@ -55,7 +55,6 @@ var WebsocketProvider = function WebsocketProvider(url, options) {
+     this.responseQueue = new Map();
+     this.reconnectAttempts = 0;
+     this.reconnecting = false;
+-    this.connectFailedDescription = null;
+     // The w3cwebsocket implementation does not support Basic Auth
+     // username/password in the URL. So generate the basic auth header, and
+     // pass through with any additional headers supplied in constructor
+@@ -137,40 +136,6 @@ WebsocketProvider.prototype._onConnect = function () {
+         });
+     }
+ };
+-WebsocketProvider.prototype._onConnectFailed = function (event) {
+-    this.connectFailedDescription = event.toString().split('\n')[0];
+-    var _this = this;
+-    if (this.connectFailedDescription) {
+-        event.description = this.connectFailedDescription;
+-        this.connectFailedDescription = null; // clean the message, so it won't be used in the next connection
+-    }
+-    event.code = 1006;
+-    event.reason = 'connection failed';
+-    if (this.reconnectOptions.auto && (![1000, 1001].includes(event.code) || event.wasClean === false)) {
+-        this.reconnect();
+-        return;
+-    }
+-    this.emit(this.ERROR, event);
+-    if (this.requestQueue.size > 0) {
+-        this.requestQueue.forEach(function (request, key) {
+-            request.callback(errors.ConnectionNotOpenError(event));
+-            _this.requestQueue.delete(key);
+-        });
+-    }
+-    if (this.responseQueue.size > 0) {
+-        this.responseQueue.forEach(function (request, key) {
+-            request.callback(errors.InvalidConnection('on WS', event));
+-            _this.responseQueue.delete(key);
+-        });
+-    }
+-    //clean connection on our own
+-    if (this.connection._connection) {
+-        this.connection._connection.removeAllListeners();
+-    }
+-    this.connection._client.removeAllListeners();
+-    this.connection._readyState = 3; // set readyState to CLOSED
+-    this.emit(this.CLOSE, event);
+-};
+ /**
+  * Listener for the `close` event of the underlying WebSocket object
+  *
+@@ -211,10 +176,6 @@ WebsocketProvider.prototype._addSocketListeners = function () {
+     this.connection.addEventListener('message', this._onMessage.bind(this));
+     this.connection.addEventListener('open', this._onConnect.bind(this));
+     this.connection.addEventListener('close', this._onClose.bind(this));
+-    if (this.connection._client) {
+-        this.connection._client.removeAllListeners('connectFailed'); //Override the internal listeners, so they don't trigger a `close` event. We want to trigger `_onClose` manually with a description.
+-        this.connection._client.on('connectFailed', this._onConnectFailed.bind(this));
+-    }
+ };
+ /**
+  * Will remove all socket listeners
+@@ -227,8 +188,6 @@ WebsocketProvider.prototype._removeSocketListeners = function () {
+     this.connection.removeEventListener('message', this._onMessage);
+     this.connection.removeEventListener('open', this._onConnect);
+     this.connection.removeEventListener('close', this._onClose);
+-    if (this.connection._connection)
+-        this.connection._client.removeListener('connectFailed', this._onConnectFailed);
+ };
+ /**
+  * Will parse the response and make an array out of it.
+@@ -370,13 +329,8 @@ WebsocketProvider.prototype.reconnect = function () {
+     this.reconnecting = true;
+     if (this.responseQueue.size > 0) {
+         this.responseQueue.forEach(function (request, key) {
+-            try {
+-                _this.responseQueue.delete(key);
+-                request.callback(errors.PendingRequestsOnReconnectingError());
+-            }
+-            catch (e) {
+-                console.error("Error encountered in reconnect: ", e);
+-            }
++            request.callback(errors.PendingRequestsOnReconnectingError());
++            _this.responseQueue.delete(key);
+         });
+     }
+     if (!this.reconnectOptions.maxAttempts ||
+diff --git a/node_modules/web3-providers-ws/src/index.js b/node_modules/web3-providers-ws/src/index.js
+index 7923c4c..0596c03 100644
+--- a/node_modules/web3-providers-ws/src/index.js
++++ b/node_modules/web3-providers-ws/src/index.js
+@@ -63,7 +63,7 @@ var WebsocketProvider = function WebsocketProvider(url, options) {
+     this.responseQueue = new Map();
+     this.reconnectAttempts = 0;
+     this.reconnecting = false;
+-    this.connectFailedDescription = null;
++
+     // The w3cwebsocket implementation does not support Basic Auth
+     // username/password in the URL. So generate the basic auth header, and
+     // pass through with any additional headers supplied in constructor
+@@ -160,47 +160,6 @@ WebsocketProvider.prototype._onConnect = function () {
+     }
+ };
+ 
+-WebsocketProvider.prototype._onConnectFailed = function (event) {
+-    this.connectFailedDescription = event.toString().split('\n')[0];
+-    var _this = this;
+-    if (this.connectFailedDescription) {
+-        event.description = this.connectFailedDescription;
+-        this.connectFailedDescription = null; // clean the message, so it won't be used in the next connection
+-    }
+-
+-    event.code = 1006;
+-    event.reason = 'connection failed';
+-
+-    if (this.reconnectOptions.auto && (![1000, 1001].includes(event.code) || event.wasClean === false)) {
+-        this.reconnect();
+-
+-        return;
+-    }
+-
+-    this.emit(this.ERROR, event);
+-    if (this.requestQueue.size > 0) {
+-        this.requestQueue.forEach(function (request, key) {
+-            request.callback(errors.ConnectionNotOpenError(event));
+-            _this.requestQueue.delete(key);
+-        });
+-    }
+-
+-    if (this.responseQueue.size > 0) {
+-        this.responseQueue.forEach(function (request, key) {
+-            request.callback(errors.InvalidConnection('on WS', event));
+-            _this.responseQueue.delete(key);
+-        });
+-    }
+-
+-    //clean connection on our own
+-    if(this.connection._connection){
+-        this.connection._connection.removeAllListeners();
+-    }
+-    this.connection._client.removeAllListeners();
+-    this.connection._readyState = 3; // set readyState to CLOSED
+-
+-    this.emit(this.CLOSE, event);
+-}
+ /**
+  * Listener for the `close` event of the underlying WebSocket object
+  *
+@@ -217,7 +176,8 @@ WebsocketProvider.prototype._onClose = function (event) {
+         return;
+     }
+ 
+-        this.emit(this.CLOSE, event);
++    this.emit(this.CLOSE, event);
++
+     if (this.requestQueue.size > 0) {
+         this.requestQueue.forEach(function (request, key) {
+             request.callback(errors.ConnectionNotOpenError(event));
+@@ -247,11 +207,7 @@ WebsocketProvider.prototype._addSocketListeners = function () {
+     this.connection.addEventListener('message', this._onMessage.bind(this));
+     this.connection.addEventListener('open', this._onConnect.bind(this));
+     this.connection.addEventListener('close', this._onClose.bind(this));
+-    if(this.connection._client){
+-        this.connection._client.removeAllListeners('connectFailed'); //Override the internal listeners, so they don't trigger a `close` event. We want to trigger `_onClose` manually with a description.
+-        this.connection._client.on('connectFailed',this._onConnectFailed.bind(this));
+-    }
+-}
++};
+ 
+ /**
+  * Will remove all socket listeners
+@@ -264,8 +220,6 @@ WebsocketProvider.prototype._removeSocketListeners = function () {
+     this.connection.removeEventListener('message', this._onMessage);
+     this.connection.removeEventListener('open', this._onConnect);
+     this.connection.removeEventListener('close', this._onClose);
+-    if(this.connection._connection)
+-        this.connection._client.removeListener('connectFailed',this._onConnectFailed);
+ };
+ 
+ /**
+@@ -438,12 +392,8 @@ WebsocketProvider.prototype.reconnect = function () {
+ 
+     if (this.responseQueue.size > 0) {
+         this.responseQueue.forEach(function (request, key) {
+-            try{
+-                _this.responseQueue.delete(key);
+-                request.callback(errors.PendingRequestsOnReconnectingError())
+-            }catch (e) {
+-                console.error("Error encountered in reconnect: ", e)
+-            }
++            request.callback(errors.PendingRequestsOnReconnectingError());
++            _this.responseQueue.delete(key);
+         });
+     }
+ 
+diff --git a/node_modules/web3-providers-ws/types/index.d.ts b/node_modules/web3-providers-ws/types/index.d.ts
+index f4cd8c5..e8fec4b 100644
+--- a/node_modules/web3-providers-ws/types/index.d.ts
++++ b/node_modules/web3-providers-ws/types/index.d.ts
+@@ -23,5 +23,3 @@
+ import { WebsocketProviderBase } from 'web3-core-helpers';
+ 
+ export class WebsocketProvider extends WebsocketProviderBase { }
+-
+-export default WebsocketProvider
+diff --git a/node_modules/web3-providers-ws/types/tests/web3-provider-ws-tests.ts b/node_modules/web3-providers-ws/types/tests/web3-provider-ws-tests.ts
+index 3d20084..3d54e0f 100644
+--- a/node_modules/web3-providers-ws/types/tests/web3-provider-ws-tests.ts
++++ b/node_modules/web3-providers-ws/types/tests/web3-provider-ws-tests.ts
+@@ -21,7 +21,7 @@
+  */
+ 
+ import { WebsocketProviderOptions, JsonRpcResponse } from 'web3-core-helpers';
+-import WebsocketProviderDefault, { WebsocketProvider } from 'web3-providers';
++import { WebsocketProvider } from 'web3-providers';
+ 
+ const options: WebsocketProviderOptions = {
+     timeout: 30000,
+@@ -30,10 +30,6 @@ const options: WebsocketProviderOptions = {
+     }
+ };
+ 
+-// $ExpectType WebsocketProvider
+-const ws_provider_default = new WebsocketProviderDefault('ws://localhost:8545', options);
+-
+-// $ExpectType WebsocketProvider
+ const wsProvider = new WebsocketProvider('ws://localhost:8545', options);
+ 
+ // $ExpectType boolean

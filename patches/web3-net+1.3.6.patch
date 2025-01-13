@@ -1,0 +1,68 @@
+diff --git a/node_modules/web3-net/README.md b/node_modules/web3-net/README.md
+index 3f7e540..22d4dec 100644
+--- a/node_modules/web3-net/README.md
++++ b/node_modules/web3-net/README.md
+@@ -1,6 +1,6 @@
+ # web3-net
+ 
+-[![NPM Package][npm-image]][npm-url]
++[![NPM Package][npm-image]][npm-url] [![Dependency Status][deps-image]][deps-url] [![Dev Dependency Status][deps-dev-image]][deps-dev-url]
+ 
+ This is a sub-package of [web3.js][repo].
+ 
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-net) or using [Yarn](https://yarnpkg.com/package/web3-net)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-net
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-net
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -40,3 +32,7 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-net.svg
+ [npm-url]: https://npmjs.org/package/web3-net
++[deps-image]: https://david-dm.org/ethereum/web3.js/1.x/status.svg?path=packages/web3-net
++[deps-url]: https://david-dm.org/ethereum/web3.js/1.x?path=packages/web3-net
++[deps-dev-image]: https://david-dm.org/ethereum/web3.js/1.x/dev-status.svg?path=packages/web3-net
++[deps-dev-url]: https://david-dm.org/ethereum/web3.js/1.x?type=dev&path=packages/web3-net
+diff --git a/node_modules/web3-net/types/index.d.ts b/node_modules/web3-net/types/index.d.ts
+index bf2b1e8..0ebdd61 100644
+--- a/node_modules/web3-net/types/index.d.ts
++++ b/node_modules/web3-net/types/index.d.ts
+@@ -20,5 +20,3 @@
+ import { NetworkBase } from 'web3-core';
+ 
+ export class Network extends NetworkBase {}
+-
+-export default Network
+diff --git a/node_modules/web3-net/types/tests/network-test.ts b/node_modules/web3-net/types/tests/network-test.ts
+index f3d3c2d..25a09dd 100644
+--- a/node_modules/web3-net/types/tests/network-test.ts
++++ b/node_modules/web3-net/types/tests/network-test.ts
+@@ -17,10 +17,7 @@
+  * @date 2018
+  */
+ 
+-import NetworkDefault, { Network } from 'web3-net';
+-
+-// $ExpectType Network
+-const network_default_empty = new NetworkDefault();
++import { Network } from 'web3-net';
+ 
+ // $ExpectType Network
+ const network_empty = new Network();

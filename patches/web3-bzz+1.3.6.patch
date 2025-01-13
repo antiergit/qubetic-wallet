@@ -1,0 +1,127 @@
+diff --git a/node_modules/web3-bzz/README.md b/node_modules/web3-bzz/README.md
+index a2b953b..383dfdd 100644
+--- a/node_modules/web3-bzz/README.md
++++ b/node_modules/web3-bzz/README.md
+@@ -1,6 +1,6 @@
+ # web3-bzz
+ 
+-[![NPM Package][npm-image]][npm-url]
++[![NPM Package][npm-image]][npm-url] [![Dependency Status][deps-image]][deps-url] [![Dev Dependency Status][deps-dev-image]][deps-dev-url]
+ 
+ This is a sub-package of [web3.js][repo].
+ 
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-bzz) or using [Yarn](https://yarnpkg.com/package/web3-bzz)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-bzz
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-bzz
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -40,3 +32,7 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-bzz.svg
+ [npm-url]: https://npmjs.org/package/web3-bzz
++[deps-image]: https://david-dm.org/ethereum/web3.js/1.x/status.svg?path=packages/web3-bzz
++[deps-url]: https://david-dm.org/ethereum/web3.js/1.x?path=packages/web3-bzz
++[deps-dev-image]: https://david-dm.org/ethereum/web3.js/1.x/dev-status.svg?path=packages/web3-bzz
++[deps-dev-url]: https://david-dm.org/ethereum/web3.js/1.x?type=dev&path=packages/web3-bzz
+diff --git a/node_modules/web3-bzz/lib/index.js b/node_modules/web3-bzz/lib/index.js
+index a6bd484..d819a2c 100644
+--- a/node_modules/web3-bzz/lib/index.js
++++ b/node_modules/web3-bzz/lib/index.js
+@@ -20,6 +20,7 @@
+  * @date 2017
+  */
+ "use strict";
++var _ = require('underscore');
+ var swarm = require("swarm-js");
+ var Bzz = function Bzz(provider) {
+     this.givenProvider = Bzz.givenProvider;
+@@ -41,14 +42,14 @@ if (typeof ethereum !== 'undefined' && ethereum.bzz) {
+ /* jshint ignore:end */
+ Bzz.prototype.setProvider = function (provider) {
+     // is ethereum provider
+-    if (!!provider && typeof provider === 'object' && typeof provider.bzz === 'string') {
++    if (_.isObject(provider) && _.isString(provider.bzz)) {
+         provider = provider.bzz;
+         // is no string, set default
+     }
+     // else if(!_.isString(provider)) {
+     //      provider = 'http://swarm-gateways.net'; // default to gateway
+     // }
+-    if (typeof provider === 'string') {
++    if (_.isString(provider)) {
+         this.currentProvider = provider;
+     }
+     else {
+diff --git a/node_modules/web3-bzz/src/index.js b/node_modules/web3-bzz/src/index.js
+index b81e7f6..7f87381 100644
+--- a/node_modules/web3-bzz/src/index.js
++++ b/node_modules/web3-bzz/src/index.js
+@@ -22,6 +22,7 @@
+ 
+ "use strict";
+ 
++var _ = require('underscore');
+ var swarm = require("swarm-js");
+ 
+ 
+@@ -51,7 +52,7 @@ if (typeof ethereum !== 'undefined' && ethereum.bzz) {
+ 
+ Bzz.prototype.setProvider = function(provider) {
+     // is ethereum provider
+-    if(!!provider && typeof provider === 'object' && typeof provider.bzz === 'string') {
++    if(_.isObject(provider) && _.isString(provider.bzz)) {
+         provider = provider.bzz;
+     // is no string, set default
+     }
+@@ -60,7 +61,7 @@ Bzz.prototype.setProvider = function(provider) {
+     // }
+ 
+ 
+-    if(typeof provider === 'string') {
++    if(_.isString(provider)) {
+         this.currentProvider = provider;
+     } else {
+         this.currentProvider = null;
+diff --git a/node_modules/web3-bzz/types/index.d.ts b/node_modules/web3-bzz/types/index.d.ts
+index 07fbaaf..340ee13 100644
+--- a/node_modules/web3-bzz/types/index.d.ts
++++ b/node_modules/web3-bzz/types/index.d.ts
+@@ -38,5 +38,3 @@ export interface Pick {
+     directory: () => Promise<any>;
+     data: () => Promise<any>;
+ }
+-
+-export default Bzz
+diff --git a/node_modules/web3-bzz/types/tests/bzz-test.ts b/node_modules/web3-bzz/types/tests/bzz-test.ts
+index d40cd74..286486e 100644
+--- a/node_modules/web3-bzz/types/tests/bzz-test.ts
++++ b/node_modules/web3-bzz/types/tests/bzz-test.ts
+@@ -17,10 +17,7 @@
+  * @date 2018
+  */
+ 
+-import BzzDefault, { Bzz } from 'web3-bzz';
+-
+-// $ExpectType Bzz
+-const bzz_default_empty = new BzzDefault();
++import { Bzz } from 'web3-bzz';
+ 
+ // $ExpectType Bzz
+ const bzz_empty = new Bzz();

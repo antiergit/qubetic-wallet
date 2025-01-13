@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-sensitive-info/android/src/main/java/br/com/classapp/RNSensitiveInfo/RNSensitiveInfoModule.java b/node_modules/react-native-sensitive-info/android/src/main/java/br/com/classapp/RNSensitiveInfo/RNSensitiveInfoModule.java
+index c9ee9c2..fb8d7ed 100644
+--- a/node_modules/react-native-sensitive-info/android/src/main/java/br/com/classapp/RNSensitiveInfo/RNSensitiveInfoModule.java
++++ b/node_modules/react-native-sensitive-info/android/src/main/java/br/com/classapp/RNSensitiveInfo/RNSensitiveInfoModule.java
+@@ -344,8 +344,7 @@ public class RNSensitiveInfoModule extends ReactContextBaseJavaModule {
+                             secretKey.getAlgorithm(), ANDROID_KEYSTORE_PROVIDER);
+                     KeyInfo info = (KeyInfo) factory.getKeySpec(secretKey, KeyInfo.class);
+ 
+-                    if (info.isUserAuthenticationRequired() &&
+-                            info.getUserAuthenticationValidityDurationSeconds() == -1) {
++                    if (info.isUserAuthenticationRequired()) {
+ 
+                         if (showModal) {
+                             class PutExtraWithAESCallback extends BiometricPrompt.AuthenticationCallback {
+@@ -458,8 +457,7 @@ public class RNSensitiveInfoModule extends ReactContextBaseJavaModule {
+                             secretKey.getAlgorithm(), ANDROID_KEYSTORE_PROVIDER);
+                     KeyInfo info = (KeyInfo) factory.getKeySpec(secretKey, KeyInfo.class);
+ 
+-                    if (info.isUserAuthenticationRequired() &&
+-                            info.getUserAuthenticationValidityDurationSeconds() == -1) {
++                    if (info.isUserAuthenticationRequired()) {
+ 
+                         if (showModal) {
+                             class DecryptWithAesCallback extends BiometricPrompt.AuthenticationCallback {

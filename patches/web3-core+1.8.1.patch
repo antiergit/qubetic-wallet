@@ -1,0 +1,53 @@
+diff --git a/node_modules/web3-core/README.md b/node_modules/web3-core/README.md
+index 839ad72..b1be332 100644
+--- a/node_modules/web3-core/README.md
++++ b/node_modules/web3-core/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-core) or using [Yarn](https://yarnpkg.com/package/web3-core)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-core
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-core
+-```
+-
+ ## Usage
+ 
+ ```js
+diff --git a/node_modules/web3-core/types/index.d.ts b/node_modules/web3-core/types/index.d.ts
+index 2853d4e..c7e2df5 100644
+--- a/node_modules/web3-core/types/index.d.ts
++++ b/node_modules/web3-core/types/index.d.ts
+@@ -138,11 +138,6 @@ export interface Transaction {
+     maxFeePerGas?: number | string | BN;
+     gas: number;
+     input: string;
+-    chainId?: string;
+-    accessList?: AccessList;
+-    v?: string;
+-    r?: string;
+-    s?: string;
+ }
+ 
+ export interface TransactionConfig {
+@@ -461,10 +456,3 @@ export type provider =
+     | AbstractProvider
+     | string
+     | null;
+-
+-export interface AccessTuple {
+-    address: string;
+-    storageKeys: string[];
+-}
+-
+-export type AccessList = AccessTuple[];

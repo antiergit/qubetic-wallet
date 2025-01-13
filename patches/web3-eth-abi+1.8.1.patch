@@ -1,0 +1,67 @@
+diff --git a/node_modules/web3-eth-abi/README.md b/node_modules/web3-eth-abi/README.md
+index 46f3a97..0b9b90d 100644
+--- a/node_modules/web3-eth-abi/README.md
++++ b/node_modules/web3-eth-abi/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-eth-abi) or using [Yarn](https://yarnpkg.com/package/web3-eth-abi)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-eth-abi
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-eth-abi
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -41,3 +33,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-eth-abi.svg
+ [npm-url]: https://npmjs.org/package/web3-eth-abi
++
+diff --git a/node_modules/web3-eth-abi/lib/index.js b/node_modules/web3-eth-abi/lib/index.js
+index 0213d45..dfdb80e 100644
+--- a/node_modules/web3-eth-abi/lib/index.js
++++ b/node_modules/web3-eth-abi/lib/index.js
+@@ -228,11 +228,8 @@ ABICoder.prototype.formatParam = function (type, param) {
+     if (match) {
+         let size = parseInt(match[2] || "256");
+         if (size / 8 < param.length) {
+-            param = param.startsWith("-")
+-                // pad to correct bit width, with - at the beginning
+-                ? `-${utils.leftPad(param.substring(1), size)}`
+-                // pad to correct bit width
+-                : utils.leftPad(param, size);
++            // pad to correct bit width
++            param = utils.leftPad(param, size);
+         }
+     }
+     // Format correct length for bytes[0-9]+
+diff --git a/node_modules/web3-eth-abi/src/index.js b/node_modules/web3-eth-abi/src/index.js
+index 3bb6e79..600b993 100644
+--- a/node_modules/web3-eth-abi/src/index.js
++++ b/node_modules/web3-eth-abi/src/index.js
+@@ -268,11 +268,8 @@ ABICoder.prototype.formatParam = function (type, param) {
+     if (match) {
+         let size = parseInt(match[2] || "256");
+         if (size / 8 < param.length) {
+-            param = param.startsWith("-")
+-                // pad to correct bit width, with - at the beginning
+-                ? `-${utils.leftPad(param.substring(1), size)}`
+-                // pad to correct bit width
+-                : utils.leftPad(param, size);
++            // pad to correct bit width
++            param = utils.leftPad(param, size);
+         }
+     }
+ 

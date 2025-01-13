@@ -1,0 +1,132 @@
+diff --git a/node_modules/bip39/CHANGELOG.md b/node_modules/bip39/CHANGELOG.md
+new file mode 100644
+index 0000000..4f3a1fc
+--- /dev/null
++++ b/node_modules/bip39/CHANGELOG.md
+@@ -0,0 +1,16 @@
++# 3.0.0
++__added__
++- Added TypeScript support (#104)
++- Added support for excluding wordlists from packages (#105)
++
++__changed__
++- Changed `mnemonicToSeed` to use async, sync version moved to `mnemonicToSeedSync` (#104)
++
++__removed__
++- Removed explicit hex methods (use `toString('hex')` on the Buffer) (#104)
++
++# 2.3.1
++
++__breaking changes__
++
++9-letter mnemonics can no longer be geerated and calling `validateMnemonic` will always return false. This was [fixed in the BIP as a patch](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki#generating-the-mnemonic), so we had to follow suite.
+diff --git a/node_modules/bip39/README.md b/node_modules/bip39/README.md
+index aacfcd0..c94520d 100644
+--- a/node_modules/bip39/README.md
++++ b/node_modules/bip39/README.md
+@@ -38,16 +38,12 @@ $ browserify -r bip39 -s bip39 \
+ 
+  This will create a bundle that only contains the chinese_simplified wordlist, and it will be the default wordlist for all calls without explicit wordlists.
+ 
+- You can also do this in Webpack 5 using the `IgnorePlugin`. Here is an example of excluding all non-English wordlists
++ You can also do this in Webpack using the `IgnorePlugin`. Here is an example of excluding all non-English wordlists
+ 
+  ```javascript
+  ...
+  plugins: [
+-   new webpack.IgnorePlugin({
+-      checkResource(resource) {
+-        return /.*\/wordlists\/(?!english).*\.json/.test(resource)
+-      }
+-    }),
++   new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+  ],
+  ...
+  ```
+diff --git a/node_modules/bip39/src/index.js b/node_modules/bip39/src/index.js
+index b83863f..91d1a72 100644
+--- a/node_modules/bip39/src/index.js
++++ b/node_modules/bip39/src/index.js
+@@ -1,9 +1,8 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-const sha256_1 = require("@noble/hashes/sha256");
+-const sha512_1 = require("@noble/hashes/sha512");
+-const pbkdf2_1 = require("@noble/hashes/pbkdf2");
+-const utils_1 = require("@noble/hashes/utils");
++const createHash = require("create-hash");
++const pbkdf2_1 = require("pbkdf2");
++const randomBytes = require("randombytes");
+ const _wordlists_1 = require("./_wordlists");
+ let DEFAULT_WORDLIST = _wordlists_1._default;
+ const INVALID_MNEMONIC = 'Invalid mnemonic';
+@@ -11,6 +10,19 @@ const INVALID_ENTROPY = 'Invalid entropy';
+ const INVALID_CHECKSUM = 'Invalid mnemonic checksum';
+ const WORDLIST_REQUIRED = 'A wordlist is required but a default could not be found.\n' +
+     'Please pass a 2048 word array explicitly.';
++function pbkdf2Promise(password, saltMixin, iterations, keylen, digest) {
++    return Promise.resolve().then(() => new Promise((resolve, reject) => {
++        const callback = (err, derivedKey) => {
++            if (err) {
++                return reject(err);
++            }
++            else {
++                return resolve(derivedKey);
++            }
++        };
++        pbkdf2_1.pbkdf2(password, saltMixin, iterations, keylen, digest, callback);
++    }));
++}
+ function normalize(str) {
+     return (str || '').normalize('NFKD');
+ }
+@@ -29,29 +41,26 @@ function bytesToBinary(bytes) {
+ function deriveChecksumBits(entropyBuffer) {
+     const ENT = entropyBuffer.length * 8;
+     const CS = ENT / 32;
+-    const hash = sha256_1.sha256(Uint8Array.from(entropyBuffer));
++    const hash = createHash('sha256')
++        .update(entropyBuffer)
++        .digest();
+     return bytesToBinary(Array.from(hash)).slice(0, CS);
+ }
+ function salt(password) {
+     return 'mnemonic' + (password || '');
+ }
+ function mnemonicToSeedSync(mnemonic, password) {
+-    const mnemonicBuffer = Uint8Array.from(Buffer.from(normalize(mnemonic), 'utf8'));
+-    const saltBuffer = Uint8Array.from(Buffer.from(salt(normalize(password)), 'utf8'));
+-    const res = pbkdf2_1.pbkdf2(sha512_1.sha512, mnemonicBuffer, saltBuffer, {
+-        c: 2048,
+-        dkLen: 64,
+-    });
+-    return Buffer.from(res);
++    const mnemonicBuffer = Buffer.from(normalize(mnemonic), 'utf8');
++    const saltBuffer = Buffer.from(salt(normalize(password)), 'utf8');
++    return pbkdf2_1.pbkdf2Sync(mnemonicBuffer, saltBuffer, 2048, 64, 'sha512');
+ }
+ exports.mnemonicToSeedSync = mnemonicToSeedSync;
+ function mnemonicToSeed(mnemonic, password) {
+-    const mnemonicBuffer = Uint8Array.from(Buffer.from(normalize(mnemonic), 'utf8'));
+-    const saltBuffer = Uint8Array.from(Buffer.from(salt(normalize(password)), 'utf8'));
+-    return pbkdf2_1.pbkdf2Async(sha512_1.sha512, mnemonicBuffer, saltBuffer, {
+-        c: 2048,
+-        dkLen: 64,
+-    }).then((res) => Buffer.from(res));
++    return Promise.resolve().then(() => {
++        const mnemonicBuffer = Buffer.from(normalize(mnemonic), 'utf8');
++        const saltBuffer = Buffer.from(salt(normalize(password)), 'utf8');
++        return pbkdf2Promise(mnemonicBuffer, saltBuffer, 2048, 64, 'sha512');
++    });
+ }
+ exports.mnemonicToSeed = mnemonicToSeed;
+ function mnemonicToEntropy(mnemonic, wordlist) {
+@@ -132,7 +141,7 @@ function generateMnemonic(strength, rng, wordlist) {
+     if (strength % 32 !== 0) {
+         throw new TypeError(INVALID_ENTROPY);
+     }
+-    rng = rng || ((size) => Buffer.from(utils_1.randomBytes(size)));
++    rng = rng || randomBytes;
+     return entropyToMnemonic(rng(strength / 8), wordlist);
+ }
+ exports.generateMnemonic = generateMnemonic;

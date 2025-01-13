@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "680755587492",
+    "project_id": "qubeticswallet",
+    "storage_bucket": "qubeticswallet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680755587492:android:4e2404e59e0701b340f931",
+        "android_client_info": {
+          "package_name": "com.wallet.qubetics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzex_Y8at462c1-8R6A_rJrsMcelPsuy4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

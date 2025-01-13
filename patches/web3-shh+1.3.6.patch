@@ -1,0 +1,68 @@
+diff --git a/node_modules/web3-shh/README.md b/node_modules/web3-shh/README.md
+index 3d37538..b940a8d 100644
+--- a/node_modules/web3-shh/README.md
++++ b/node_modules/web3-shh/README.md
+@@ -1,6 +1,6 @@
+ # web3-shh
+ 
+-[![NPM Package][npm-image]][npm-url]
++[![NPM Package][npm-image]][npm-url] [![Dependency Status][deps-image]][deps-url] [![Dev Dependency Status][deps-dev-image]][deps-dev-url]
+ 
+ This is a sub-package of [web3.js][repo]
+ 
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-shh) or using [Yarn](https://yarnpkg.com/package/web3-shh)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-shh
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-shh
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -40,3 +32,7 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-shh.svg
+ [npm-url]: https://npmjs.org/package/web3-shh
++[deps-image]: https://david-dm.org/ethereum/web3.js/1.x/status.svg?path=packages/web3-shh
++[deps-url]: https://david-dm.org/ethereum/web3.js/1.x?path=packages/web3-shh
++[deps-dev-image]: https://david-dm.org/ethereum/web3.js/1.x/dev-status.svg?path=packages/web3-shh
++[deps-dev-url]: https://david-dm.org/ethereum/web3.js/1.x?type=dev&path=packages/web3-shh
+diff --git a/node_modules/web3-shh/types/index.d.ts b/node_modules/web3-shh/types/index.d.ts
+index fd23527..a695408 100644
+--- a/node_modules/web3-shh/types/index.d.ts
++++ b/node_modules/web3-shh/types/index.d.ts
+@@ -197,5 +197,3 @@ export interface Subscribe {
+ 
+     on(type: 'error', handler: (data: Error) => void): void;
+ }
+-
+-export default Shh
+diff --git a/node_modules/web3-shh/types/tests/shh-test.ts b/node_modules/web3-shh/types/tests/shh-test.ts
+index a143582..ec7022f 100644
+--- a/node_modules/web3-shh/types/tests/shh-test.ts
++++ b/node_modules/web3-shh/types/tests/shh-test.ts
+@@ -17,10 +17,7 @@
+  * @date 2018
+  */
+ 
+-import ShhDefault, { Info, Notification, Shh } from 'web3-shh';
+-
+-// $ExpectType Shh
+-const shh_default_empty = new ShhDefault();
++import { Info, Notification, Shh } from 'web3-shh';
+ 
+ // $ExpectType Shh
+ const shh_empty = new Shh();

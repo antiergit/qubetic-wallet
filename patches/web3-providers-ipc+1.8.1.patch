@@ -1,0 +1,58 @@
+diff --git a/node_modules/web3-providers-ipc/README.md b/node_modules/web3-providers-ipc/README.md
+index 1eb5538..2181d14 100644
+--- a/node_modules/web3-providers-ipc/README.md
++++ b/node_modules/web3-providers-ipc/README.md
+@@ -7,20 +7,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-providers-ipc) or using [Yarn](https://yarnpkg.com/package/web3-providers-ipc)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-providers-ipc
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-providers-ipc
+-```
+-
+ ## Usage
+ 
+ ```js
+diff --git a/node_modules/web3-providers-ipc/types/index.d.ts b/node_modules/web3-providers-ipc/types/index.d.ts
+index 8b561fe..b18f432 100644
+--- a/node_modules/web3-providers-ipc/types/index.d.ts
++++ b/node_modules/web3-providers-ipc/types/index.d.ts
+@@ -23,5 +23,3 @@
+ import { IpcProviderBase } from 'web3-core-helpers';
+ 
+ export class IpcProvider extends IpcProviderBase { }
+-
+-export default IpcProvider
+diff --git a/node_modules/web3-providers-ipc/types/tests/web3-provider-ipc-tests.ts b/node_modules/web3-providers-ipc/types/tests/web3-provider-ipc-tests.ts
+index 10450a3..19b0fcb 100644
+--- a/node_modules/web3-providers-ipc/types/tests/web3-provider-ipc-tests.ts
++++ b/node_modules/web3-providers-ipc/types/tests/web3-provider-ipc-tests.ts
+@@ -21,16 +21,9 @@
+  */
+ 
+ import * as net from 'net';
+-import IpcProviderDefault, { IpcProvider } from 'web3-providers';
++import { IpcProvider } from 'web3-providers';
+ import { JsonRpcResponse } from 'web3-core-helpers';
+ 
+-// $ExpectType IpcProvider
+-const ipc_provider_default = new IpcProviderDefault(
+-    '/Users/myuser/Library/Ethereum/geth.ipc',
+-    new net.Server()
+-);
+-
+-// $ExpectType IpcProvider
+ const ipcProvider = new IpcProvider(
+     '/Users/myuser/Library/Ethereum/geth.ipc',
+     new net.Server()

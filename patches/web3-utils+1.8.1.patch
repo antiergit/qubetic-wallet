@@ -1,0 +1,359 @@
+diff --git a/node_modules/web3-utils/README.md b/node_modules/web3-utils/README.md
+index 613080b..51a6c6b 100644
+--- a/node_modules/web3-utils/README.md
++++ b/node_modules/web3-utils/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-utils) or using [Yarn](https://yarnpkg.com/package/web3-utils)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-utils
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-utils
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -45,3 +37,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-utils.svg
+ [npm-url]: https://npmjs.org/package/web3-utils
++
+diff --git a/node_modules/web3-utils/lib/utils.js b/node_modules/web3-utils/lib/utils.js
+index 6384514..5057309 100644
+--- a/node_modules/web3-utils/lib/utils.js
++++ b/node_modules/web3-utils/lib/utils.js
+@@ -22,9 +22,8 @@
+ var BN = require('bn.js');
+ var numberToBN = require('number-to-bn');
+ var utf8 = require('utf8');
+-var ethereumjsUtil = require('@ethereumjs/util');
++var ethereumjsUtil = require('ethereumjs-util');
+ var ethereumBloomFilters = require('ethereum-bloom-filters');
+-var { keccak256 } = require('ethereum-cryptography/keccak.js');
+ /**
+  * Returns true if object is BN, otherwise false
+  *
+@@ -192,26 +191,20 @@ var hexToUtf8 = function (hex) {
+     return utf8.decode(str);
+ };
+ /**
+- * Converts value to it's number representation.
+- * However, if the value is larger than the maximum safe integer, returns the value as a string.
++ * Converts value to it's number representation
+  *
+  * @method hexToNumber
+  * @param {String|Number|BN} value
+- * @param {Boolean} bigIntOnOverflow - if true, return the hex value in case of overflow
+- * @return {Number|String}
++ * @return {String}
+  */
+-var hexToNumber = function (value, bigIntOnOverflow = false) {
++var hexToNumber = function (value) {
+     if (!value) {
+         return value;
+     }
+     if (typeof value === 'string' && !isHexStrict(value)) {
+         throw new Error('Given value "' + value + '" is not a valid hex string.');
+     }
+-    const n = toBN(value);
+-    if (bigIntOnOverflow && (n > Number.MAX_SAFE_INTEGER || n < Number.MIN_SAFE_INTEGER)) {
+-        return BigInt(n);
+-    }
+-    return n.toNumber();
++    return toBN(value).toNumber();
+ };
+ /**
+  * Converts value to it's decimal representation in string
+@@ -441,7 +434,7 @@ var sha3 = function (value) {
+         // Assume value is an arbitrary string
+         value = Buffer.from(value, 'utf-8');
+     }
+-    var returnValue = ethereumjsUtil.bufferToHex(keccak256(value));
++    var returnValue = ethereumjsUtil.bufferToHex(ethereumjsUtil.keccak256(value));
+     if (returnValue === SHA3_NULL_S) {
+         return null;
+     }
+@@ -450,7 +443,7 @@ var sha3 = function (value) {
+     }
+ };
+ // expose the under the hood keccak256
+-sha3._Hash = keccak256;
++sha3._Hash = ethereumjsUtil.keccak256;
+ /**
+  * @method sha3Raw
+  *
+@@ -471,11 +464,10 @@ var sha3Raw = function (value) {
+  *
+  * @method toNumber
+  * @param {String|Number|BN} value
+- * @param {Boolean} bigIntOnOverflow - if true, return the hex value in case of overflow
+- * @return {Number|String}
++ * @return {Number}
+  */
+-var toNumber = function (value, bigIntOnOverflow = false) {
+-    return typeof value === 'number' ? value : hexToNumber(toHex(value), bigIntOnOverflow);
++var toNumber = function (value) {
++    return typeof value === 'number' ? value : hexToNumber(toHex(value));
+ };
+ // 1.x currently accepts 0x... strings, bn.js after update doesn't. it would be a breaking change
+ var BNwrapped = function (value) {
+diff --git a/node_modules/web3-utils/src/utils.js b/node_modules/web3-utils/src/utils.js
+index e3a9419..a120175 100644
+--- a/node_modules/web3-utils/src/utils.js
++++ b/node_modules/web3-utils/src/utils.js
+@@ -23,9 +23,8 @@
+ var BN = require('bn.js');
+ var numberToBN = require('number-to-bn');
+ var utf8 = require('utf8');
+-var ethereumjsUtil = require('@ethereumjs/util');
++var ethereumjsUtil = require('ethereumjs-util');
+ var ethereumBloomFilters = require('ethereum-bloom-filters');
+-var {keccak256} = require('ethereum-cryptography/keccak.js');
+ 
+ /**
+  * Returns true if object is BN, otherwise false
+@@ -219,15 +218,13 @@ var hexToUtf8 = function(hex) {
+ 
+ 
+ /**
+- * Converts value to it's number representation.
+- * However, if the value is larger than the maximum safe integer, returns the value as a string.
++ * Converts value to it's number representation
+  *
+  * @method hexToNumber
+  * @param {String|Number|BN} value
+- * @param {Boolean} bigIntOnOverflow - if true, return the hex value in case of overflow
+- * @return {Number|String}
++ * @return {String}
+  */
+-var hexToNumber = function (value, bigIntOnOverflow = false) {
++var hexToNumber = function (value) {
+     if (!value) {
+         return value;
+     }
+@@ -236,11 +233,7 @@ var hexToNumber = function (value, bigIntOnOverflow = false) {
+         throw new Error('Given value "'+value+'" is not a valid hex string.');
+     }
+ 
+-    const n = toBN(value);
+-    if (bigIntOnOverflow && (n > Number.MAX_SAFE_INTEGER || n < Number.MIN_SAFE_INTEGER)) {
+-        return BigInt(n);
+-    }
+-    return n.toNumber();
++    return toBN(value).toNumber();
+ };
+ 
+ /**
+@@ -501,7 +494,7 @@ var sha3 = function (value) {
+         value = Buffer.from(value, 'utf-8');
+     }
+ 
+-    var returnValue = ethereumjsUtil.bufferToHex(keccak256(value));
++    var returnValue = ethereumjsUtil.bufferToHex(ethereumjsUtil.keccak256(value));
+ 
+     if(returnValue === SHA3_NULL_S) {
+         return null;
+@@ -510,7 +503,7 @@ var sha3 = function (value) {
+     }
+ };
+ // expose the under the hood keccak256
+-sha3._Hash = keccak256;
++sha3._Hash = ethereumjsUtil.keccak256;
+ 
+ /**
+  * @method sha3Raw
+@@ -535,11 +528,10 @@ var sha3Raw = function(value) {
+  *
+  * @method toNumber
+  * @param {String|Number|BN} value
+- * @param {Boolean} bigIntOnOverflow - if true, return the hex value in case of overflow
+- * @return {Number|String}
++ * @return {Number}
+  */
+-var toNumber = function (value, bigIntOnOverflow = false) {
+-    return typeof value === 'number' ? value : hexToNumber(toHex(value), bigIntOnOverflow);
++var toNumber = function(value) {
++    return typeof value === 'number' ? value : hexToNumber(toHex(value));
+ }
+ 
+ // 1.x currently accepts 0x... strings, bn.js after update doesn't. it would be a breaking change
+diff --git a/node_modules/web3-utils/types/index.d.ts b/node_modules/web3-utils/types/index.d.ts
+index 825e803..0fd436e 100644
+--- a/node_modules/web3-utils/types/index.d.ts
++++ b/node_modules/web3-utils/types/index.d.ts
+@@ -80,13 +80,13 @@ export function hexToAscii(string: string): string;
+ export function toAscii(string: string): string;
+ export function bytesToHex(bytes: number[]): string;
+ export function numberToHex(value: number | string | BN): string;
+-export function checkAddressChecksum(address: string): boolean;
++export function checkAddressChecksum(address: string, chainId?: number): boolean;
+ export function fromAscii(string: string): string;
+ export function fromDecimal(value: string | number): string;
+ export function fromUtf8(string: string): string;
+ export function fromWei(value: string | BN, unit?: Unit): string;
+ export function hexToBytes(hex: Hex): number[];
+-export function hexToNumber(hex: Hex,bigIntOnOverflow?: boolean): number | string;
++export function hexToNumber(hex: Hex): number;
+ export function hexToNumberString(hex: Hex): string;
+ export function hexToString(hex: Hex): string;
+ export function hexToUtf8(string: string): string;
+@@ -100,7 +100,7 @@ export function sha3Raw(value: string | BN | Buffer): string;
+ export function randomHex(bytesSize: number): string;
+ export function utf8ToHex(string: string): string;
+ export function stringToHex(string: string): string;
+-export function toChecksumAddress(address: string): string;
++export function toChecksumAddress(address: string, chainId?: number): string;
+ export function toDecimal(hex: Hex): number;
+ export function toHex(value: number | string | BN): string;
+ export function toUtf8(string: string): string;
+@@ -122,7 +122,7 @@ export function testAddress(bloom: string, address: string): boolean;
+ export function testTopic(bloom: string, topic: string): boolean;
+ export function getSignatureParameters(signature: string): {r: string; s: string; v: number};
+ export function stripHexPrefix(str: string): string;
+-export function toNumber(value: number | string | BN, bigIntOnOverflow?: boolean): number | string;
++export function toNumber(value: number | string | BN): number;
+ 
+ // interfaces
+ export interface Utils {
+@@ -144,7 +144,7 @@ export interface Utils {
+     fromUtf8(string: string): string;
+     fromWei(value: string | BN, unit?: Unit): string;
+     hexToBytes(hex: Hex): number[];
+-    hexToNumber(hex: Hex, bigIntOnOverflow?: boolean): number | string;
++    hexToNumber(hex: Hex): number;
+     hexToNumberString(hex: Hex): string;
+     hexToString(hex: Hex): string;
+     hexToUtf8(string: string): string;
+@@ -157,7 +157,7 @@ export interface Utils {
+     randomHex(bytesSize: number): string;
+     utf8ToHex(string: string): string;
+     stringToHex(string: string): string;
+-    toChecksumAddress(address: string): string;
++    toChecksumAddress(address: string, chainId?: number): string;
+     toDecimal(hex: Hex): number;
+     toHex(value: number | string | BN): string;
+     toUtf8(string: string): string;
+@@ -169,7 +169,7 @@ export interface Utils {
+     isContractAddressInBloom(bloom: string, contractAddress: string): boolean;
+     isTopicInBloom(bloom: string, topic: string): boolean;
+     isTopic(topic: string): boolean;
+-    _jsonInterfaceMethodToString(abiItem: AbiItem): string;
++    jsonInterfaceMethodToString(abiItem: AbiItem): string;
+     soliditySha3(...val: Mixed[]): string | null;
+     soliditySha3Raw(...val: Mixed[]): string;
+     encodePacked(...val: Mixed[]): string | null;
+@@ -179,7 +179,7 @@ export interface Utils {
+     testTopic(bloom: string, topic: string): boolean;
+     getSignatureParameters(signature: string): {r: string; s: string; v: number};
+     stripHexPrefix(str: string): string;
+-    toNumber(value: number | string | BN, bigIntOnOverflow?: boolean): number | string;
++    toNumber(value: number | string | BN): number;
+ }
+ 
+ export interface Units {
+diff --git a/node_modules/web3-utils/types/tests/check-address-checksum-test.ts b/node_modules/web3-utils/types/tests/check-address-checksum-test.ts
+index b5843e5..0ed905d 100644
+--- a/node_modules/web3-utils/types/tests/check-address-checksum-test.ts
++++ b/node_modules/web3-utils/types/tests/check-address-checksum-test.ts
+@@ -25,11 +25,11 @@ import {checkAddressChecksum} from 'web3-utils';
+ 
+ // $ExpectType boolean
+ checkAddressChecksum('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51');
+-
+-// $ExpectError
++// $ExpectType boolean
+ checkAddressChecksum('0xFb6916095CA1dF60bb79CE92ce3Ea74C37c5D359', 31);
+-// $ExpectError
++// $ExpectType boolean
+ checkAddressChecksum('0xFb6916095CA1dF60bb79CE92ce3Ea74C37c5D359', undefined);
++
+ // $ExpectError
+ checkAddressChecksum([4]);
+ // $ExpectError
+diff --git a/node_modules/web3-utils/types/tests/hex-to-number-test.ts b/node_modules/web3-utils/types/tests/hex-to-number-test.ts
+index be409a3..597a65b 100644
+--- a/node_modules/web3-utils/types/tests/hex-to-number-test.ts
++++ b/node_modules/web3-utils/types/tests/hex-to-number-test.ts
+@@ -23,14 +23,10 @@
+ import BN = require('bn.js');
+ import {hexToNumber} from 'web3-utils';
+ 
+-// $ExpectType string | number
++// $ExpectType number
+ hexToNumber('232');
+-// $ExpectType string | number
++// $ExpectType number
+ hexToNumber(232);
+-// $ExpectType string | number
+-hexToNumber('0x1fffffffffffff'); // the max safe number 2 ^ 53
+-// $ExpectType string | number
+-hexToNumber('0x20000000000000', true); // larger than the 2 ^ 53 (unsafe)
+ 
+ // $ExpectError
+ hexToNumber(new BN(3));
+diff --git a/node_modules/web3-utils/types/tests/to-check-sum-address-test.ts b/node_modules/web3-utils/types/tests/to-check-sum-address-test.ts
+index 6fe37fb..a43aa7a 100644
+--- a/node_modules/web3-utils/types/tests/to-check-sum-address-test.ts
++++ b/node_modules/web3-utils/types/tests/to-check-sum-address-test.ts
+@@ -25,6 +25,10 @@ import {toChecksumAddress} from 'web3-utils';
+ 
+ // $ExpectType string
+ toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51');
++// $ExpectType string
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', 31);
++// $ExpectType string
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', undefined);
+ 
+ // $ExpectError
+ toChecksumAddress([4]);
+@@ -42,3 +46,15 @@ toChecksumAddress(true);
+ toChecksumAddress(null);
+ // $ExpectError
+ toChecksumAddress(undefined);
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', [4]);
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', ['string']);
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', new BN(3));
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', {});
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', true);
++// $ExpectError
++toChecksumAddress('0x8ee7f17bb3f88b01247c21ab6603880b64ae53e811f5e01138822e558cf1ab51', null);
+diff --git a/node_modules/web3-utils/types/tests/to-number-test.ts b/node_modules/web3-utils/types/tests/to-number-test.ts
+index 0f04731..c6a0a14 100644
+--- a/node_modules/web3-utils/types/tests/to-number-test.ts
++++ b/node_modules/web3-utils/types/tests/to-number-test.ts
+@@ -23,16 +23,12 @@
+ import BN = require('bn.js');
+ import {toNumber} from 'web3-utils';
+ 
+-// $ExpectType string | number
++// $ExpectType number
+ toNumber('234');
+-// $ExpectType string | number
++// $ExpectType number
+ toNumber(234);
+-// $ExpectType string | number
++// $ExpectType number
+ toNumber(new BN(3));
+-// $ExpectType string | number
+-toNumber('0x1fffffffffffff'); // the max safe number 2 ^ 53
+-// $ExpectType string | number
+-toNumber('0x20000000000000', true); // larger than the 2 ^ 53 (unsafe)
+ 
+ // $ExpectError
+ toNumber(['string']);

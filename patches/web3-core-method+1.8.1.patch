@@ -1,0 +1,176 @@
+diff --git a/node_modules/web3-core-method/README.md b/node_modules/web3-core-method/README.md
+index 93b9334..05d1b6c 100644
+--- a/node_modules/web3-core-method/README.md
++++ b/node_modules/web3-core-method/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-core-method) or using [Yarn](https://yarnpkg.com/package/web3-core-method)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-core-method
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-core-method
+-```
+-
+ ## Usage
+ 
+ ```js
+@@ -48,3 +40,4 @@ All the TypeScript typings are placed in the `types` folder.
+ [repo]: https://github.com/ethereum/web3.js
+ [npm-image]: https://img.shields.io/npm/v/web3-core-method.svg
+ [npm-url]: https://npmjs.org/package/web3-core-method
++
+diff --git a/node_modules/web3-core-method/lib/index.js b/node_modules/web3-core-method/lib/index.js
+index 5dc909e..d4d0df7 100644
+--- a/node_modules/web3-core-method/lib/index.js
++++ b/node_modules/web3-core-method/lib/index.js
+@@ -141,11 +141,11 @@ Method.prototype.formatOutput = function (result) {
+     var _this = this;
+     if (Array.isArray(result)) {
+         return result.map(function (res) {
+-            return _this.outputFormatter && res ? _this.outputFormatter(res, this?.hexFormat) : res;
++            return _this.outputFormatter && res ? _this.outputFormatter(res) : res;
+         });
+     }
+     else {
+-        return this.outputFormatter && result ? this.outputFormatter(result, this?.hexFormat) : result;
++        return this.outputFormatter && result ? this.outputFormatter(result) : result;
+     }
+ };
+ /**
+@@ -506,9 +506,7 @@ Method.prototype.buildCall = function () {
+         let args = Array.prototype.slice.call(arguments);
+         var defer = promiEvent(!isSendTx), payload = method.toPayload(args);
+         method.hexFormat = false;
+-        if (method.call === 'eth_getTransactionReceipt'
+-            || method.call === 'eth_getTransactionByHash'
+-            || method.name === 'getBlock') {
++        if (method.call === 'eth_getTransactionReceipt') {
+             method.hexFormat = (payload.params.length < args.length && args[args.length - 1] === 'hex');
+         }
+         // CALLBACK function
+@@ -522,15 +520,7 @@ Method.prototype.buildCall = function () {
+                     reasonData = result.substring(10);
+                 }
+                 else if (err && err.data) {
+-                    // workaround embedded error details got from some providers like MetaMask
+-                    if (typeof err.data === 'object') {
+-                        // Ganache has no `originalError` sub-object unlike others
+-                        var originalError = err.data.originalError ?? err.data;
+-                        reasonData = originalError.data.substring(10);
+-                    }
+-                    else {
+-                        reasonData = err.data.substring(10);
+-                    }
++                    reasonData = err.data.substring(10);
+                 }
+                 if (reasonData) {
+                     var reason = method.abiCoder.decodeParameter('string', '0x' + reasonData);
+@@ -638,16 +628,10 @@ Method.prototype.buildCall = function () {
+             }
+             return method.requestManager.send(payload, sendTxCallback);
+         };
+-        const hasSendTxObject = isSendTx
+-            && !!payload.params[0]
+-            && typeof payload.params[0] === 'object';
+-        if (hasSendTxObject &&
+-            payload.params[0].type === '0x1'
+-            && typeof payload.params[0].accessList === 'undefined') {
+-            payload.params[0].accessList = [];
+-        }
+         // Send the actual transaction
+-        if (hasSendTxObject
++        if (isSendTx
++            && !!payload.params[0]
++            && typeof payload.params[0] === 'object'
+             && (typeof payload.params[0].gasPrice === 'undefined'
+                 && (typeof payload.params[0].maxPriorityFeePerGas === 'undefined'
+                     || typeof payload.params[0].maxFeePerGas === 'undefined'))) {
+diff --git a/node_modules/web3-core-method/src/index.js b/node_modules/web3-core-method/src/index.js
+index 54ff4b7..ffa3525 100644
+--- a/node_modules/web3-core-method/src/index.js
++++ b/node_modules/web3-core-method/src/index.js
+@@ -164,10 +164,10 @@ Method.prototype.formatOutput = function (result) {
+ 
+     if (Array.isArray(result)) {
+         return result.map(function (res) {
+-            return _this.outputFormatter && res ? _this.outputFormatter(res, this?.hexFormat) : res;
++            return _this.outputFormatter && res ? _this.outputFormatter(res) : res;
+         });
+     } else {
+-        return this.outputFormatter && result ? this.outputFormatter(result, this?.hexFormat) : result;
++        return this.outputFormatter && result ? this.outputFormatter(result) : result;
+     }
+ };
+ 
+@@ -637,9 +637,7 @@ Method.prototype.buildCall = function () {
+             payload = method.toPayload(args);
+ 
+         method.hexFormat = false;
+-        if (method.call === 'eth_getTransactionReceipt'
+-            || method.call === 'eth_getTransactionByHash'
+-            || method.name === 'getBlock') {
++        if(method.call === 'eth_getTransactionReceipt'){
+             method.hexFormat = (payload.params.length  < args.length && args[args.length - 1] === 'hex')
+         }
+         // CALLBACK function
+@@ -653,15 +651,7 @@ Method.prototype.buildCall = function () {
+                 if (!err && method.isRevertReasonString(result)){
+                     reasonData = result.substring(10);
+                 } else if (err && err.data){
+-                    // workaround embedded error details got from some providers like MetaMask
+-                    if (typeof err.data === 'object') {
+-                        // Ganache has no `originalError` sub-object unlike others
+-                        var originalError = err.data.originalError ?? err.data;
+-                        reasonData = originalError.data.substring(10);
+-                    }
+-                    else {
+-                        reasonData = err.data.substring(10);
+-                    }
++                    reasonData = err.data.substring(10);
+                 }
+ 
+                 if (reasonData){
+@@ -803,20 +793,10 @@ Method.prototype.buildCall = function () {
+             return method.requestManager.send(payload, sendTxCallback);
+         };
+ 
+-        const hasSendTxObject = isSendTx
+-            && !!payload.params[0]
+-            && typeof payload.params[0] === 'object';
+-
+-        if (hasSendTxObject &&
+-                payload.params[0].type === '0x1'
+-                && typeof payload.params[0].accessList === 'undefined'
+-            ) {
+-                payload.params[0].accessList = [];
+-            }
+-      
+-
+         // Send the actual transaction
+-        if (hasSendTxObject
++        if (isSendTx
++            && !!payload.params[0]
++            && typeof payload.params[0] === 'object'
+             && (
+                 typeof payload.params[0].gasPrice === 'undefined'
+                 && (
+diff --git a/node_modules/web3-core-method/types/index.d.ts b/node_modules/web3-core-method/types/index.d.ts
+index 2801e72..438b315 100644
+--- a/node_modules/web3-core-method/types/index.d.ts
++++ b/node_modules/web3-core-method/types/index.d.ts
+@@ -32,5 +32,3 @@ export interface Method {
+     abiCoder?: any;
+     handleRevert?: boolean;
+ }
+-
+-export default Method

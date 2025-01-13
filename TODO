@@ -1,0 +1,77 @@
+
+Referral user Status::::::::------------------------->
+status=1 -------> under review
+status=2 -------> approved
+status=3 -------> rejected
+status=null -----> fee_pending
+
+
+
+
+<------------------------------------------------>
+
+svg xml------------------------->
+export async function fetchText(uri: string) {
+  const response = await fetch(uri);
+  if (response.status == 200)
+    return await response.text();
+  else return null
+}
+
+android screenshot----------------->
+
+package com.reactlibrary;
+
+import android.view.WindowManager;
+
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Callback;
+import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
+
+public class RNPreventScreenshotModule extends ReactContextBaseJavaModule {
+
+  private final ReactApplicationContext reactContext;
+
+  public RNPreventScreenshotModule(ReactApplicationContext reactContext) {
+    super(reactContext);
+    this.reactContext = reactContext;
+  }
+
+  @Override
+  public String getName() {
+    return "RNPreventScreenshot";
+  }
+
+  @ReactMethod
+  public void enabled(final boolean _enable) {
+     runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+        if(_enable){
+          getCurrentActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+      } else {
+         getCurrentActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+      }
+        } catch(Exception e) {
+        }
+      }
+    });
+      
+    }
+
+}
+
+changes to be done for mainnet----------------->
+Update RPC url from backend 
+change IS_PRODUCTION to 1
+
+
+//ios chart
+public func replaceSubrange<C>(_ subrange: Swift.Range<Int>, with newElements: C) where C : Collection, ChartDataEntry == C.Element {
+    entries.replaceSubrange(subrange, with: newElements)
+    notifyDataSetChanged()
+}

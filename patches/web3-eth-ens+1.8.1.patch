@@ -1,0 +1,247 @@
+diff --git a/node_modules/web3-eth-ens/README.md b/node_modules/web3-eth-ens/README.md
+index 7caf3e6..1b22f38 100644
+--- a/node_modules/web3-eth-ens/README.md
++++ b/node_modules/web3-eth-ens/README.md
+@@ -10,20 +10,12 @@ Please read the [documentation][docs] for more.
+ 
+ ## Installation
+ 
+-You can install the package either using [NPM](https://www.npmjs.com/package/web3-eth-ens) or using [Yarn](https://yarnpkg.com/package/web3-eth-ens)
+-
+-### Using NPM
++### Node.js
+ 
+ ```bash
+ npm install web3-eth-ens
+ ```
+ 
+-### Using Yarn
+-
+-```bash
+-yarn add web3-eth-ens
+-```
+-
+ ## Usage
+ 
+ ```js
+diff --git a/node_modules/web3-eth-ens/types/index.d.ts b/node_modules/web3-eth-ens/types/index.d.ts
+index de52d97..c47f21f 100644
+--- a/node_modules/web3-eth-ens/types/index.d.ts
++++ b/node_modules/web3-eth-ens/types/index.d.ts
+@@ -402,5 +402,3 @@ export class Registry {
+         callback?: (error: Error | TransactionRevertInstructionError, receipt: TransactionReceipt) => void
+     ): PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ }
+-
+-export default Ens
+diff --git a/node_modules/web3-eth-ens/types/tests/ens-test.ts b/node_modules/web3-eth-ens/types/tests/ens-test.ts
+index c9de287..17d0af5 100644
+--- a/node_modules/web3-eth-ens/types/tests/ens-test.ts
++++ b/node_modules/web3-eth-ens/types/tests/ens-test.ts
+@@ -20,13 +20,9 @@
+ import { TransactionRevertInstructionError } from 'web3-core-helpers';
+ import { TransactionReceipt } from 'web3-core';
+ import { Contract } from 'web3-eth-contract';
+-import EnsDefault, { Ens, ContentHash } from 'web3-eth-ens';
++import { Ens, ContentHash } from 'web3-eth-ens';
+ import { Eth } from 'web3-eth';
+ 
+-// $ExpectType Ens
+-const ens_default = new EnsDefault(new Eth('http://localhost:8545'));
+-
+-// $ExpectType Ens
+ const ens = new Ens(new Eth('http://localhost:8545'));
+ 
+ // $ExpectType string | null
+@@ -48,43 +44,43 @@ ens.getResolver('name', (error: Error, contract: Contract) => {});
+ // $ExpectType Promise<Contract>
+ ens.getResolver('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setResolver('name', '0x0...');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setResolver('name', '0x0...', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setResolver('name', '0x0...', {}, (error: Error, receipt: TransactionReceipt) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeOwner('name', 'label', '0x...');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeOwner('name', 'label', '0x...', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeOwner('name', 'label', '0x...', {}, (error: Error, receipt: TransactionReceipt) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setRecord('name', 'owner', 'resolver', '100000');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setRecord('name', 'owner', 'resolver', 100000);
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setRecord('name', 'owner', 'resolver', 100000, {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setRecord('name', 'owner', 'resolver', 100000, {}, (error: Error, receipt: TransactionReceipt) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeRecord('name', 'label', 'owner', 'resolver', '100000');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeRecord('name', 'label', 'owner', 'resolver', 100000);
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeRecord('name', 'label', 'owner', 'resolver', 100000, {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setSubnodeRecord('name', 'label', 'owner', 'resolver', 100000, {}, (error: Error, receipt: TransactionReceipt) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setApprovalForAll('name', true);
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setApprovalForAll('name', false, {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setApprovalForAll('name', true, {}, (error: Error, receipt: TransactionReceipt) => {});
+ 
+ // $ExpectType Promise<boolean>
+@@ -108,11 +104,11 @@ ens.getTTL('name', (error: Error, ttl: string) => {});
+ // $ExpectType Promise<string>
+ ens.getTTL('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setTTL('name', 10000);
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setTTL('name', 10000, {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setTTL('name', '0xa', {}, (error: Error | TransactionRevertInstructionError, receipt: TransactionReceipt) => {});
+ 
+ // $ExpectType Promise<string>
+@@ -122,11 +118,11 @@ ens.getOwner('name', (value: any) => {});
+ // $ExpectType Promise<string>
+ ens.getOwner('name', (error: Error, owner: string) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setOwner('name', '0x...');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setOwner('name', '0x...', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setOwner('name', '0x...', {}, (error: Error | TransactionRevertInstructionError, receipt: TransactionReceipt) => {});
+ 
+ // $ExpectType Promise<boolean>
+@@ -151,11 +147,11 @@ ens.getAddress('name', (error: Error, address: string) => {});
+ // $ExpectType Promise<string>
+ ens.getAddress('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setAddress('name', 'address');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setAddress('name', 'address', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setAddress('name', 'address', {}, (error: Error, result: any) => {});
+ 
+ // $ExpectType Promise<{ [x: string]: string; }>
+@@ -165,11 +161,11 @@ ens.getPubkey('name', (error: Error, result: { [x: string]: string }) => {});
+ // $ExpectType Promise<{ [x: string]: string; }>
+ ens.getPubkey('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setPubkey('name', 'x', 'y');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setPubkey('name', 'x', 'y', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setPubkey('name', 'x', 'y', {}, (error: Error, result: any) => {});
+ 
+ // $ExpectType Promise<string>
+@@ -179,11 +175,11 @@ ens.getText('name', 'key', (error: Error, ensName: string) => {});
+ // $ExpectType Promise<string>
+ ens.getText('name', 'key', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setText('name', 'key', 'value');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setText('name', 'key', 'value', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setText('name', 'key', 'value', {}, (error: Error, result: any) => {});
+ 
+ // $ExpectType Promise<string>
+@@ -193,11 +189,11 @@ ens.getContent('name', (error: Error, contentHash: string) => {});
+ // $ExpectType Promise<string>
+ ens.getContent('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContent('name', 'hash');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContent('name', 'hash', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContent('name', 'hash', {}, (error: Error, result: any) => {});
+ 
+ // $ExpectType Promise<string>
+@@ -207,11 +203,11 @@ ens.getMultihash('name', (error: Error, multihash: string) => {});
+ // $ExpectType Promise<string>
+ ens.getMultihash('name', (value: any) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setMultihash('name', 'hash');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setMultihash('name', 'hash', {}, (error: Error, result: any) => {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setMultihash('name', 'hash', {});
+ 
+ // $ExpectType Promise<ContentHash>
+@@ -221,9 +217,9 @@ ens.getContenthash('name', (error: Error, contenthash: ContentHash) => {});
+ // $ExpectType Promise<ContentHash>
+ ens.getContenthash('name', (value: ContentHash) => {});
+ 
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContenthash('name', 'hash');
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContenthash('name', 'hash', {});
+-// $ExpectType PromiEvent<TransactionRevertInstructionError | TransactionReceipt>
++// $ExpectType PromiEvent<TransactionReceipt | TransactionRevertInstructionError>
+ ens.setContenthash('name', 'hash', {}, (error: Error, result: any) => {});
+diff --git a/node_modules/web3-eth-ens/types/tslint.json b/node_modules/web3-eth-ens/types/tslint.json
+index 383b159..30e95b7 100644
+--- a/node_modules/web3-eth-ens/types/tslint.json
++++ b/node_modules/web3-eth-ens/types/tslint.json
+@@ -7,7 +7,6 @@
+         "whitespace": false,
+         "no-unnecessary-class": false,
+         "no-empty-interface": false,
+-        "unified-signatures": false,
+-        "no-redundant-jsdoc": false
++        "unified-signatures": false
+     }
+ }
