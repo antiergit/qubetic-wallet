@@ -35,6 +35,7 @@ import {
 import {
   bigNumberFormat,
   bigNumberSafeMath,
+  clearGarbageCollection,
   exponentialToDecimal,
   getData,
   getEncryptedData,
@@ -173,6 +174,10 @@ class SendTrx extends Component {
     });
     // this.backhandle = BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
     // if (this.backhandle) this.backhandle.remove();
+  }
+
+  componentWillUnmount() {
+    clearGarbageCollection()
   }
 
   //******************************************************************************************/
@@ -378,23 +383,7 @@ class SendTrx extends Component {
     const { alertMessages, sendTrx } = LanguageManager;
     const { toAddress, amount, selectedCoin, showFee, totalFee } = this.state;
     let coinBal = this.state.selectedCoin?.balance;
-    // if (!this.isMakerWallet) {
-    //   const privateKey = await getData(
-    //     `${Singleton.getInstance().defaultTrxAddress}_pk`
-    //   );
-    //   console.log("sendTransaction 2222----", privateKey);
-    //   if (Singleton.getInstance().defaultTrxAddress && privateKey) {
-    //     coinBal = await getTronBalance(
-    //       Singleton.getInstance().defaultTrxAddress,
-    //       privateKey
-    //     );
-    //   }
-    //   console.log(
-    //     parseFloat(toFixedExp(coinBal, 8)),
-    //     "chk coinBal:::::",
-    //     coinBal
-    //   );
-    // }
+
     console.log("chk bala:::::", selectedCoin.balance);
     if (toAddress.trim().length == 0)
       return this.setState({
@@ -517,12 +506,8 @@ class SendTrx extends Component {
 
     setTimeout(async () => {
       const { toAddress, amount } = this.state;
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
+
       console.log("privateKey", privateKey);
       createTrxRaw(
         Singleton.getInstance().defaultTrxAddress,
@@ -532,11 +517,13 @@ class SendTrx extends Component {
       )
         .then((trxSignedRaw) => {
           this.sendSerializedTxn(trxSignedRaw);
+          privateKey = ""
           console.log('SendTron-------');
         })
         .catch((err) => {
           console.log("chk signed raw err::::::::::::", err);
           this.setState({ isLoading: false });
+          privateKey = ""
         });
 
 
@@ -575,10 +562,12 @@ class SendTrx extends Component {
       )
         .then((tokenRaw) => {
           this.sendSerializedTxn(tokenRaw);
+          privateKey = ""
         })
         .catch((err) => {
           console.log("chk signed raw err::::::::::::", err);
           this.setState({ isLoading: false });
+          privateKey = ""
         });
 
     }, 200);

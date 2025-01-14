@@ -20,7 +20,8 @@ class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        window.setFlags( WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
     }
 
     override fun onStart() {

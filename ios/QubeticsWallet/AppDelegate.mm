@@ -143,8 +143,124 @@ static void ClearKeychainIfNecessary() {
     
   }];
   
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                            selector:@selector(handleAppWillResignActive)
+                                                name:UIApplicationWillResignActiveNotification
+                                              object:nil];
+
+   [[NSNotificationCenter defaultCenter] addObserver:self
+                                            selector:@selector(handleAppDidBecomeActive)
+                                                name:UIApplicationDidBecomeActiveNotification
+                                              object:nil];
+
+   [[NSNotificationCenter defaultCenter] addObserver:self
+                                            selector:@selector(handleAppDidEnterBackground)
+                                                name:UIApplicationDidEnterBackgroundNotification
+                                              object:nil];
+
+   [[NSNotificationCenter defaultCenter] addObserver:self
+                                            selector:@selector(handleAppWillEnterForeground)
+                                                name:UIApplicationWillEnterForegroundNotification
+                                              object:nil];
 
   return YES;
+}
+
+
+- (void)handleAppWillResignActive {
+  NSLog(@"handleAppWillResignActive");
+  
+  // Log current application state
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+  NSLog(@"Current applicationState: %@", [self stringForApplicationState:state]);
+
+  // Schedule showing the overlay, but only if app doesn't become active soon
+  self.isOverlayScheduled = YES;
+
+  // Delay showing the overlay, but cancel if app becomes active again before the delay
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    // Only show the overlay if the app is inactive and not becoming active again
+    if (self.isOverlayScheduled && [UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+      NSLog(@"Showing overlay after delay");
+      [self showOverlay];
+      [self sendEventToJS:@"onAppBackground"];
+    } else {
+      NSLog(@"Overlay display canceled because app became active again");
+    }
+  });
+}
+
+- (void)handleAppDidBecomeActive {
+  NSLog(@"handleAppDidBecomeActive");
+
+  // Cancel showing the overlay because the app is back to active state
+  self.isOverlayScheduled = NO;
+
+  // Remove the overlay if it's showing (e.g., from Mission Control or background)
+  [self hideOverlay];
+  [self sendEventToJS:@"onAppForeground"];
+}
+
+- (void)handleAppDidEnterBackground {
+  NSLog(@"handleAppDidEnterBackground");
+
+  // This handles true backgrounding, such as when the app is minimized
+  self.isOverlayScheduled = NO; // Prevent any delayed overlay from showing
+
+  [self showOverlay];
+  [self sendEventToJS:@"onAppBackground"];
+}
+
+- (void)handleAppWillEnterForeground {
+  NSLog(@"handleAppWillEnterForeground");
+
+  // App is coming back to the foreground
+  self.isOverlayScheduled = NO; // Prevent any delayed overlay from showing
+
+  [self hideOverlay];
+  [self sendEventToJS:@"onAppForeground"];
+}
+
+- (void)showOverlay {
+  NSLog(@"showOverlay");
+  
+  if (!self.overlayImageView) {
+    UIImage *overlayImage = [UIImage imageNamed:@"OverlayImage"];
+    self.overlayImageView = [[UIImageView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.overlayImageView.image = overlayImage;
+    self.overlayImageView.contentMode = UIViewContentModeScaleAspectFill;
+  }
+  [self.window addSubview:self.overlayImageView];
+}
+
+- (void)hideOverlay {
+  NSLog(@"hideOverlay");
+  
+  [self.overlayImageView removeFromSuperview];
+}
+
+// Send event to React Native
+- (void)sendEventToJS:(NSString *)eventName {
+  NSLog(@"sendEventToJS: %@", eventName);
+  
+  RCTBridge *bridge = [(RCTRootView *)self.window.rootViewController.view bridge];
+  if (bridge) {
+    [bridge.eventDispatcher sendAppEventWithName:eventName body:@{}];
+  }
+}
+
+// Helper method to convert application state to string
+- (NSString *)stringForApplicationState:(UIApplicationState)state {
+  switch (state) {
+    case UIApplicationStateActive:
+      return @"Active";
+    case UIApplicationStateInactive:
+      return @"Inactive";
+    case UIApplicationStateBackground:
+      return @"Background";
+    default:
+      return @"Unknown";
+  }
 }
 
 

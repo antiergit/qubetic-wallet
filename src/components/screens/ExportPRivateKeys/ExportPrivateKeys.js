@@ -4,7 +4,7 @@ import { ThemeManager } from '../../../../ThemeManager'
 import { HeaderMain, OnboardingHeadings } from '../../common'
 import { LanguageManager } from '../../../../LanguageManager'
 import styles from './ExportProivateKeyStyles'
-import { getData, getEncryptedData } from '../../../Utils/MethodsUtils'
+import { clearGarbageCollection, getData, getEncryptedData } from '../../../Utils/MethodsUtils'
 import images from '../../../theme/Images'
 import { getDimensionPercentage as dimen, heightDimen, widthDimen } from '../../../Utils'
 import FastImage from 'react-native-fast-image'
@@ -19,31 +19,43 @@ const ExportPrivateKeys = ({ walletItem, pin }) => {
     const toast = useRef(null);
     useEffect(() => {
         getKeys()
+        return () => {
+            clearGarbageCollection()
+            setKeysData([])
+        }
     }, [])
+
     const getKeys = async () => {
-        let arr = []
-        console.log("private key address >>>>", walletItem.loginRequest?.addressList);
-        walletItem.loginRequest?.addressList?.map((async (item) => {
-            // if(item.coin_family != 3){
-            let obj = {}
-            let privateKey
-            if (item?.coin_family == 5) {
-                const mnemonics = await getEncryptedData(item.address, pin)
-                const value = await deriveSolanaPrivateKey(mnemonics)
-                privateKey = Buffer.from(value).toString('hex')
-            } else {
-                privateKey = await getEncryptedData(item.address + '_pk', pin)
+        try {
+            let arr = [];
+            console.log("Private key address >>>>", walletItem.loginRequest?.addressList);
+            for (const item of walletItem.loginRequest?.addressList || []) {
+                let privateKey = ""
+                if (item?.coin_family == 5) {
+                    privateKey = await getEncryptedData(item.address, pin)
+                    privateKey = await deriveSolanaPrivateKey(privateKey)
+                    privateKey = Buffer.from(privateKey).toString('hex')
+                } else {
+                    privateKey = await getEncryptedData(item.address + '_pk', pin)
+                }
+
+                arr.push({
+                    symbol: item.symbol,
+                    key: privateKey,
+                    coinFamily: item.coin_family,
+                });
+                privateKey = ""
             }
-            obj['symbol'] = item.symbol
-            obj['key'] = privateKey
-            obj["coinFamily"] = item.coin_family
-            arr = [...arr, obj]
-            setKeysData(arr)
-            // }
 
-
-        }))
-    }
+            setKeysData(arr);
+            console.log(arr, "Keys data array");
+            setTimeout(() => {
+                arr = ""
+            }, 1500);
+        } catch (error) {
+            console.error("Error fetching keys:", error);
+        }
+    };
     console.log("keysData::::", keysData);
     const getImageFromCoinFamily = (coinFamily) => {
         switch (coinFamily) {

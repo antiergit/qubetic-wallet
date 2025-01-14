@@ -1,4 +1,19 @@
 PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
   - boost (1.76.0)
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -489,6 +504,9 @@ PODS:
     - React
   - RNShare (3.8.5):
     - React-Core
+  - RNSslPinning (1.5.8):
+    - AFNetworking (~> 4.0)
+    - React
   - RNSVG (12.5.1):
     - React-Core
   - SDWebImage (5.11.1):
@@ -597,6 +615,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNScreenshotPrevent (from `../node_modules/react-native-screenshot-prevent`)
   - RNShare (from `../node_modules/react-native-share`)
+  - RNSslPinning (from `../node_modules/react-native-ssl-pinning`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - TcpSockets (from `../node_modules/react-native-tcp`)
   - TrustWalletCore
@@ -605,6 +624,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AFNetworking
     - Charts
     - CryptoSwift
     - Firebase
@@ -786,6 +806,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screenshot-prevent"
   RNShare:
     :path: "../node_modules/react-native-share"
+  RNSslPinning:
+    :path: "../node_modules/react-native-ssl-pinning"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   TcpSockets:
@@ -796,6 +818,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -890,6 +913,7 @@ SPEC CHECKSUMS:
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNScreenshotPrevent: 105cddf74799cbd81aac76e56a4025a345db8967
   RNShare: 7e22ba3bf66294ff7c122a1f2da8a8ec642091a0
+  RNSslPinning: 34974c9f1fe4a3a518598e58d482e3eb97612861
   RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d

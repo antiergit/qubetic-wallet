@@ -32,6 +32,7 @@ import {
   fetchNative_CoinPrice,
 } from "../../../Redux/Actions";
 import {
+  clearGarbageCollection,
   exponentialToDecimal,
   getData,
   getEncryptedData,
@@ -171,6 +172,10 @@ class SendEth extends Component {
       this.handleBackButtonClick
     );
     if (this.backhandle) this.backhandle.remove();
+  }
+
+  componentWillUnmount() {
+    clearGarbageCollection()
   }
 
   //******************************************************************************************/TODO: -
@@ -469,13 +474,7 @@ class SendEth extends Component {
     setTimeout(async () => {
       const { toAddress, amount } = this.state;
 
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
-
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
       createEthRaw(
         Singleton.getInstance().defaultEthAddress,
         toAddress,
@@ -484,10 +483,12 @@ class SendEth extends Component {
       ).then((ethSignedRaw) => {
         console.log('-------------ethSignedRaw', ethSignedRaw)
         this.sendSerializedTxn(ethSignedRaw.txn_hash, ethSignedRaw.nonce);
+        privateKey = ""
       })
         .catch((err) => {
           console.log("chk signed raw err::::::::::::", err);
           this.setState({ isLoading: false });
+          privateKey = ""
         });
     }, 200);
 
@@ -504,12 +505,7 @@ class SendEth extends Component {
       const { gasEstimate, toAddress, amount } = this.state;
       const { decimals, token_address } = this.state.selectedCoin;
 
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
       const BigNumber = require("bignumber.js");
       let a = new BigNumber(amount);
       let b = new BigNumber(decimals);
@@ -525,14 +521,17 @@ class SendEth extends Component {
           )
             .then((tokenRaw) => {
               this.sendSerializedTxn(tokenRaw.txn_hash, tokenRaw.nonce);
+              privateKey = ""
             })
             .catch((err) => {
               console.log("chk signed raw err::::::::::::", err);
               this.setState({ isLoading: false });
+              privateKey = ""
             });
         })
         .catch((err) => {
           this.setState({ isLoading: false });
+          privateKey = ""
         });
     }, 200);
 

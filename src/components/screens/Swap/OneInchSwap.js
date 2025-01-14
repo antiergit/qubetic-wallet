@@ -15,11 +15,9 @@ import {
   requestSendCoin,
   fetchNativePrice,
   getCommissionData,
-  getInchTokenList,
   getInchQuote,
   checkInchAllowance,
   inchSwap,
-  getGasslessTokens,
   inchSwapSpender,
   getUserBalance,
 } from "../../../Redux/Actions";
@@ -858,7 +856,7 @@ const OneInchSwap = (props) => {
 
           dispatch(getInchQuote({ data, }))
             .then(async (res) => {
-              console.log("getMatchaPrice==success=>>>>>", res);
+              console.log("getInchQuote==success=>>>>>", res);
               let receivingAmt = await exponentialToDecimal(bigNumberSafeMath(res?.toAmount, '/', tokenSecond?.decimals))
               let perQuote = await exponentialToDecimal(bigNumberSafeMath(receivingAmt, '/', value))
               console.log("calculatedAmt::::: ", receivingAmt);
@@ -880,13 +878,13 @@ const OneInchSwap = (props) => {
               }
             })
             .catch((err) => {
-              console.log("getMatchaPrice===error>>>>> ", err);
+              console.log("getInchQuote===error>>>>> ", err);
               setTokenTwoAmount("");
               setLoadingText(false);
               setLoading(false);
             });
         }).catch((err) => {
-          console.log("getGasPrice===error>>>>> ", err);
+          console.log("getInchQuote===error>>>>> ", err);
           setLoading(false);
           setLoadingText(false);
         });
@@ -1184,7 +1182,7 @@ const OneInchSwap = (props) => {
     console.log("getchainId::::::", chainId);
     dispatch(inchSwap({ data }))
       .then(async (res) => {
-        console.log("getMatchaQuote==success::::::", res);
+        console.log("getInchQuote==success::::::", res);
         let receivingAmt = await exponentialToDecimal(bigNumberSafeMath(res?.toAmount, '/', tokenSecond?.decimals))
         let perQuote = await exponentialToDecimal(bigNumberSafeMath(receivingAmt, '/', tokenOneAmount))
         console.log("calculatedAmt::::: ", receivingAmt);
@@ -1203,7 +1201,7 @@ const OneInchSwap = (props) => {
         setConfirmTxnModalSwap(true);
       })
       .catch((err) => {
-        console.log("getMatchaQuote===error::::::: ", err);
+        console.log("getInchQuote===error::::::: ", err);
         setTokenTwoAmount("");
         setLoadingText(false);
         setLoading(false);
@@ -1436,11 +1434,12 @@ const OneInchSwap = (props) => {
       console.log("rawTransaction =>", rawTransaction);
       console.log("fromApproval =>", fromApproval);
       let finalTxn = "";
-      const pvtKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
+      let pvtKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
       const txn = await web3Object.eth.accounts.signTransaction(
         rawTransaction,
         pvtKey
       );
+      pvtKey = ""
       finalTxn = txn.rawTransaction.slice(2)
 
       console.log("chk signtxn:::::", finalTxn);

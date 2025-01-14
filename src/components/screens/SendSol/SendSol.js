@@ -230,13 +230,15 @@ class SendSol extends Component {
   async sendSol(pin) {
     this.setState({ isLoading: true });
     getEncryptedData(Singleton.getInstance().defaultSolAddress, pin).then((res) => {
-      console.log("res getEncryptedData", res);
-      sendSOLANA(this.state.toAddress, this.state.amount, res)
+      let mnemonics = res
+      sendSOLANA(this.state.toAddress, this.state.amount, mnemonics)
         .then((res) => {
+          mnemonics = ""
           console.log("res sendSOLANA", res);
           this.saveSolTransaction("sol", res)
         })
         .catch((err) => {
+          mnemonics = ""
           this.setState({ isLoading: false });
           console.log("err sendSOLANA", err);
         })
@@ -250,12 +252,15 @@ class SendSol extends Component {
       if (amount.toString().includes(".")) {
         amount = amount.toString().split(".")[0]
       }
-      sendTokenSOLANA(this.state.toAddress, amount, res, this.state.selectedCoin?.token_address, this.state.selectedCoin?.decimals)
+      let mnemonics = res
+      sendTokenSOLANA(this.state.toAddress, amount, mnemonics, this.state.selectedCoin?.token_address, this.state.selectedCoin?.decimals)
         .then((res) => {
+          mnemonics = ""
           console.log("res sendSOLANA", res);
           this.saveSolTransaction(this.state.selectedCoin?.token_address, res)
         })
         .catch((err) => {
+          mnemonics = ""
           this.setState({ isLoading: false });
           console.log("err sendSOLANA", err);
         })

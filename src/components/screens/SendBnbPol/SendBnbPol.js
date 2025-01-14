@@ -23,6 +23,7 @@ import {
   QRCodeScannerNew,
 } from "../../common";
 import {
+  clearGarbageCollection,
   exponentialToDecimal,
   getData,
   getEncryptedData,
@@ -153,6 +154,9 @@ class SendBnbPol extends Component {
       this.handleBackButtonClick
     );
     if (this.backhandle) this.backhandle.remove();
+  }
+  componentWillUnmount() {
+    clearGarbageCollection()
   }
 
   /******************************************************************************************/
@@ -491,7 +495,6 @@ class SendBnbPol extends Component {
 
         let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBnbAddress}_pk`, pin);
 
-        console.log("privateKey", privateKey);
 
         let txn_raw = ""
         if (this.state.selectedCoin.coin_family == 1) {
@@ -501,6 +504,10 @@ class SendBnbPol extends Component {
           const chainId = this.state.selectedCoin.coin_family == 7 ? 9009 : 137;
           txn_raw = await getMaticRaw(amount, toAddress, nonce, gasPrice, gasEstimate, chainId, privateKey)
         }
+        console.log("privateKey", privateKey);
+        privateKey = "";
+        console.log("after privateKey", privateKey);
+
         console.log("txn_raw", txn_raw);
         this.sendSerializedTxn(txn_raw);
 
@@ -544,14 +551,17 @@ class SendBnbPol extends Component {
           )
             .then((signedRaw) => {
               console.log("chk bep signedRaw::::::", signedRaw);
+              privateKey = "";
               this.sendSerializedTxn(signedRaw);
             })
             .catch((err) => {
+              privateKey = "";
               this.setState({ isLoading: false });
               this.setState({ showAlertDialog: true, alertTxt: err.message });
             });
         })
         .catch((err) => {
+          privateKey = "";
           this.setState({ isLoading: false });
           this.setState({ showAlertDialog: true, alertTxt: err.message });
         });

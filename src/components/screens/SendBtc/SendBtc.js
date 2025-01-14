@@ -21,6 +21,7 @@ import {
   fetchNative_CoinPrice,
 } from "../../../Redux/Actions";
 import {
+  clearGarbageCollection,
   exponentialToDecimal,
   exponentialToDecimalWithoutComma,
   getData,
@@ -156,6 +157,10 @@ class SendBtc extends Component {
     this.setState({
       marketPriceSelectedCurrency: this.state.selectedCoin.currentPriceInMarket,
     });
+  }
+
+  componentWillUnmount() {
+    clearGarbageCollection()
   }
 
   handleBackButtonClick() {
@@ -481,13 +486,7 @@ class SendBtc extends Component {
       gas_gwei_price,
       selectedCoin,
     } = this.state;
-    let privateKey = ""
-    try {
-      privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBtcAddress}_pk`, pin);
-    } catch (error) {
-      console.log("ERROR>>", error);
-    }
-
+    let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBtcAddress}_pk`, pin);
     fee = transactionSize * this.state.SliderValue;
     console.log("----fee", fee);
     console.log("----transactionSize", transactionSize);
@@ -521,26 +520,17 @@ class SendBtc extends Component {
 
       let serializedTransaction;
       try {
-        let multiWallet = await getData(Constants.MULTI_WALLET_LIST)
-        let multiWalletData = JSON.parse(multiWallet)
-        let currentWallet = multiWalletData.filter(el => el?.defaultWallet == true)[0]
-        if (!currentWallet?.login_data?.isTangem) {
-          const transaction = new bitcore.Transaction();
-          transaction.from(inputs);
-          transaction.to(
-            this.state.toAddress,
-            Math.round(this.state.amount * btcTosatoshi)
-          );
-          transaction.change(this.state.myAddress);
-          transaction.fee(fee);
-          transaction.sign(privateKey);
-          serializedTransaction = transaction.serialize();
-        } else {
-          fee = transactionSize * this.state.SliderValue;
-          const amountTemp = Math.round(parseFloat(amount) * btcTosatoshi)
-          console.log('--------------currentWallet', currentWallet)
-          serializedTransaction = await sendBtcTangem(currentWallet, inputs, fee, amountTemp, toAddress, myAddress)
-        }
+        const transaction = new bitcore.Transaction();
+        transaction.from(inputs);
+        transaction.to(
+          this.state.toAddress,
+          Math.round(this.state.amount * btcTosatoshi)
+        );
+        transaction.change(this.state.myAddress);
+        transaction.fee(fee);
+        transaction.sign(privateKey);
+        serializedTransaction = transaction.serialize();
+
         console.log('--------------serializeBTC', serializedTransaction)
 
       } catch (e) {
@@ -555,6 +545,7 @@ class SendBtc extends Component {
 
       getData(Constants.ACCESS_TOKEN)
         .then((token) => {
+          privateKey = ""
           this.sendSerializedTxn(
             nonce,
             serializedTransaction,
@@ -568,6 +559,7 @@ class SendBtc extends Component {
           );
         })
         .catch((err) => {
+          privateKey = ""
           this.setState({
             showAlertDialog: true,
             alertTxt: LanguageManager.alertMessages.failedtoInitiateTransaction,

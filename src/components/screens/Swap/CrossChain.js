@@ -938,7 +938,7 @@ const CrossChain = ({
     setLoading(true);
     setTimeout(async () => {
       try {
-        const privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
+        let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
         createTrxRaw(
           Singleton.getInstance().defaultTrxAddress,
           address,
@@ -946,12 +946,13 @@ const CrossChain = ({
           privateKey
         )
           .then((trxSignedRaw) => {
+            privateKey = ""
             sendSerializedTxnTron(trxSignedRaw);
           })
           .catch((err) => {
+            privateKey = ""
             console.log("chk signed raw err::::::::::::trx", err);
             setLoading(false);
-
             showAlertDialogNew(true);
             setAlertTxt(err);
           });
@@ -969,7 +970,7 @@ const CrossChain = ({
     setLoading(true);
     setTimeout(async () => {
       const { decimals, token_address } = itemWallet;
-      const privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultTrxAddress}_pk`, pin);
       createTrxTokenRaw(
         Singleton.getInstance().defaultTrxAddress,
         address,
@@ -979,9 +980,11 @@ const CrossChain = ({
         feeLimit
       )
         .then((tokenRaw) => {
+          privateKey = ""
           sendSerializedTxnTron(tokenRaw);
         })
         .catch((err) => {
+          privateKey = ""
           console.log("chk signed raw err::::::::::::trx20", err);
           showAlertDialogNew(true);
           setAlertTxt(err);
@@ -1093,12 +1096,7 @@ const CrossChain = ({
 
   /******************************BTC RAW GENERATION****************************** */
   const sendBtc = async (pin) => {
-    let privateKey = ""
-    try {
-      privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBtcAddress}_pk`, pin);
-    } catch (error) {
-      console.log("ERROR>>", error);
-    }
+    let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBtcAddress}_pk`, pin);
     let fee = txnSize * SliderValue;
     console.log("----fee", fee);
     console.log(txnSize, "----transactionSize", transactionSize);
@@ -1143,8 +1141,10 @@ const CrossChain = ({
             itemWallet.coin_symbol,
             token
           );
+          privateKey = ""
         })
         .catch((err) => {
+          privateKey = ""
           setLoading(false);
           showAlertDialogNew(true);
           setAlertTxt(alertMessages.failedtoInitiateTransaction);
@@ -1157,6 +1157,7 @@ const CrossChain = ({
   const sendSol = async (pin, isToken) => {
 
     getEncryptedData(Singleton.getInstance().defaultSolAddress, pin).then((res) => {
+      let mnemonics = res
       setLoading(true);
       if (isToken) {
         //itemWallet.token_address
@@ -1165,22 +1166,26 @@ const CrossChain = ({
         if (amount.toString().includes(".")) {
           amount = amount.toString().split(".")[0]
         }
-        sendTokenSOLANA(platformAddress, amount, res, itemWallet.token_address, itemWallet.decimals)
+        sendTokenSOLANA(platformAddress, amount, mnemonics, itemWallet.token_address, itemWallet.decimals)
           .then((res) => {
+            mnemonics = ""
             console.log("res sendSOLANA", res);
             saveSolTransaction(itemWallet.token_address, res)
           })
           .catch((err) => {
+            mnemonics = ""
             setLoading(false);
             console.log("err sendSOLANA", err);
           })
       } else {
-        sendSOLANA(platformAddress, fromAmt, res)
+        sendSOLANA(platformAddress, fromAmt, mnemonics)
           .then((res) => {
+            mnemonics = ""
             console.log("res sendSOLANA", res);
             saveSolTransaction("sol", res)
           })
           .catch((err) => {
+            mnemonics = ""
             setLoading(false);
             console.log("err sendSOLANA", err);
           })
@@ -1270,12 +1275,7 @@ const CrossChain = ({
   const sendBscPol = (pin, coinFamily) => {
     setLoading(true);
     setTimeout(async () => {
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBnbAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBnbAddress}_pk`, pin);
 
       const chainId = coinFamily == 1 ? 56 : 137;
       getBnbRaw(
@@ -1288,9 +1288,11 @@ const CrossChain = ({
         privateKey
       )
         .then((txn_raw) => {
+          privateKey = ""
           sendSerializedTxnBNB(txn_raw, coinFamily);
         })
         .catch((err) => {
+          privateKey = ""
           setLoading(false);
           showAlertDialogNew(true);
           setAlertTxt(err);
@@ -1302,12 +1304,7 @@ const CrossChain = ({
   const sendBscPolToken = (pin, coinFamily) => {
     setLoading(true);
     setTimeout(async () => {
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBnbAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultBnbAddress}_pk`, pin);
       const chainID = coinFamily == 1 ? 56 : 137;
       const BigNumber = require("bignumber.js")
       let a = new BigNumber(fromAmt);
@@ -1328,8 +1325,10 @@ const CrossChain = ({
             .then((signedRaw) => {
               console.log("chk bep signedRaw::::::", signedRaw);
               sendSerializedTxnBNB(signedRaw, coinFamily);
+              privateKey = ""
             })
             .catch((err) => {
+              privateKey = ""
               setLoading(false);
               showAlertDialogNew(true);
               setAlertTxt(err.message);
@@ -1392,12 +1391,8 @@ const CrossChain = ({
   const sendEth = (pin) => {
     setLoading(true);
     setTimeout(async () => {
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
+
       createEthRaw(
         Singleton.getInstance().defaultEthAddress,
         platformAddress,
@@ -1408,9 +1403,11 @@ const CrossChain = ({
         .then((ethSignedRaw) => {
           console.log("ethSignedRaw:::::: ", ethSignedRaw);
           sendSerializedTxn(ethSignedRaw.txn_hash, ethSignedRaw.nonce);
+          privateKey = ""
         })
         .catch((err) => {
           console.log("chk signed raw err::::::::::::", err);
+          privateKey = ""
           showAlertDialogNew(true);
           setAlertTxt(err);
           setLoading(false);
@@ -1422,12 +1419,7 @@ const CrossChain = ({
   const sendERC20 = (pin) => {
     setLoading(true);
     setTimeout(async () => {
-      let privateKey = ""
-      try {
-        privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
-      } catch (error) {
-        console.log("ERROR>>", error);
-      }
+      let privateKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
       console.log(
         fromAmt,
         "chk coinwalletData.decimals::::::",
@@ -1449,9 +1441,11 @@ const CrossChain = ({
           )
             .then((tokenRaw) => {
               sendSerializedTxn(tokenRaw.txn_hash, tokenRaw.nonce);
+              privateKey = ""
             })
             .catch((err) => {
               console.log("chk signed raw err::::::::::::", err);
+              privateKey = ""
               showAlertDialogNew(true);
               setAlertTxt(err);
               setLoading(false);

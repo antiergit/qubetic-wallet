@@ -2,11 +2,12 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import * as Constants from '../Constants';
 import Singleton from '../Singleton';
-import { Dimensions } from 'react-native';
+import { Dimensions, NativeModules, Platform } from 'react-native';
 import { ThemeManager } from '../../ThemeManager';
 import { BigNumber } from "bignumber.js";
 
 const CryptoJS = require("crypto-js");
+const { CreateWallet } = NativeModules;
 
 export const saveEncryptedData = (key, value, pin) => {
   // console.log('-----------------save response', key, value, pin)
@@ -800,3 +801,13 @@ export function maskAddress(address, visibleChars = 4) {
   return `${start}...${end}`;
 }
 
+
+export const clearGarbageCollection = () => {
+  if (Platform.OS == 'android') {
+    try {
+      CreateWallet.clearGarbageCollection();
+    } catch (error) {
+      console.log('-------------------error clearGarbageCollection', error)
+    }
+  }
+};

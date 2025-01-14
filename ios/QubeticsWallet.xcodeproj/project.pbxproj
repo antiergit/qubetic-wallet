@@ -20,6 +20,9 @@
 		CE6566CE2CF04D3900AA7DCA /* DMSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE6566CD2CF04D3900AA7DCA /* DMSans-Light.ttf */; };
 		CE6566D02CF04D4300AA7DCA /* DMSans-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE6566CF2CF04D4300AA7DCA /* DMSans-ExtraLight.ttf */; };
 		CE6566D22CF04D5000AA7DCA /* DMSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE6566D12CF04D5000AA7DCA /* DMSans-ExtraBold.ttf */; };
+		CE6BBAA32D364EC800A804B0 /* coingecko.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE6BBAA02D364EC800A804B0 /* coingecko.cer */; };
+		CE6BBAA42D364EC800A804B0 /* qubetics.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE6BBAA12D364EC800A804B0 /* qubetics.cer */; };
+		CE6BBAA52D364EC800A804B0 /* swftc.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE6BBAA22D364EC800A804B0 /* swftc.cer */; };
 		CEEA0E4D2C2C19FA00E94AD4 /* Base58Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEA0E3D2C2C19FA00E94AD4 /* Base58Encode.swift */; };
 		CEEA0E4E2C2C19FA00E94AD4 /* WordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEA0E3E2C2C19FA00E94AD4 /* WordList.swift */; };
 		CEEA0E4F2C2C19FA00E94AD4 /* PublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEA0E3F2C2C19FA00E94AD4 /* PublicKey.swift */; };
@@ -82,6 +85,9 @@
 		CE6566CF2CF04D4300AA7DCA /* DMSans-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DMSans-ExtraLight.ttf"; sourceTree = "<group>"; };
 		CE6566D12CF04D5000AA7DCA /* DMSans-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DMSans-ExtraBold.ttf"; sourceTree = "<group>"; };
 		CE6BBA9F2D311D6F00A804B0 /* QubeticsWalletDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = QubeticsWalletDebug.entitlements; path = QubeticsWallet/QubeticsWalletDebug.entitlements; sourceTree = "<group>"; };
+		CE6BBAA02D364EC800A804B0 /* coingecko.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = coingecko.cer; sourceTree = "<group>"; };
+		CE6BBAA12D364EC800A804B0 /* qubetics.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = qubetics.cer; sourceTree = "<group>"; };
+		CE6BBAA22D364EC800A804B0 /* swftc.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = swftc.cer; sourceTree = "<group>"; };
 		CEEA0E3B2C2BFBEF00E94AD4 /* QubeticsWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = QubeticsWallet.entitlements; path = QubeticsWallet/QubeticsWallet.entitlements; sourceTree = "<group>"; };
 		CEEA0E3D2C2C19FA00E94AD4 /* Base58Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Base58Encode.swift; sourceTree = "<group>"; };
 		CEEA0E3E2C2C19FA00E94AD4 /* WordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordList.swift; sourceTree = "<group>"; };
@@ -182,6 +188,9 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				CEEA0E6F2C2C1B6600E94AD4 /* QubeticsWallet-Bridging-Header.h */,
 				CE5F1A752CDE189200795291 /* trust-min.js */,
+				CE6BBAA02D364EC800A804B0 /* coingecko.cer */,
+				CE6BBAA12D364EC800A804B0 /* qubetics.cer */,
+				CE6BBAA22D364EC800A804B0 /* swftc.cer */,
 			);
 			name = QubeticsWallet;
 			sourceTree = "<group>";
@@ -389,6 +398,9 @@
 				CE6566CE2CF04D3900AA7DCA /* DMSans-Light.ttf in Resources */,
 				CE6566D22CF04D5000AA7DCA /* DMSans-ExtraBold.ttf in Resources */,
 				CE6566D02CF04D4300AA7DCA /* DMSans-ExtraLight.ttf in Resources */,
+				CE6BBAA32D364EC800A804B0 /* coingecko.cer in Resources */,
+				CE6BBAA42D364EC800A804B0 /* qubetics.cer in Resources */,
+				CE6BBAA52D364EC800A804B0 /* swftc.cer in Resources */,
 				CEEA0E672C2C1AD900E94AD4 /* GoogleService-Info.plist in Resources */,
 				CEEA0E6C2C2C1AFB00E94AD4 /* exportOptions.plist in Resources */,
 				CEEA0ED02C2C28B000E94AD4 /* DMSans-MediumItalic.ttf in Resources */,

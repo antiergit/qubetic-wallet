@@ -14,7 +14,7 @@ import { ThemeManager } from "../../../../ThemeManager";
 import { Button, HeaderMain, OnboardingHeadings } from "../../common";
 import { LanguageManager } from "../../../../LanguageManager";
 import styles from "./ShowRecoveryPhraseStyles";
-import { getData, getEncryptedData } from "../../../Utils/MethodsUtils";
+import { clearGarbageCollection, getData, getEncryptedData } from "../../../Utils/MethodsUtils";
 import images from "../../../theme/Images";
 import {
   getDimensionPercentage as dimen,
@@ -32,6 +32,10 @@ const ShowRecoveryPhrase = ({ walletItem, pin }) => {
   const toast = useRef(null);
   useEffect(() => {
     generateMnemonics();
+    return () => {
+      setMnemonics("")
+      clearGarbageCollection()
+    }
   }, []);
   const generateMnemonics = async () => {
     getEncryptedData(walletItem.loginRequest.wallet_address, pin).then((mnemonics) => {

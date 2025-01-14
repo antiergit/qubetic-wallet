@@ -77,11 +77,11 @@ export const MainCard = props => {
           text={LanguageManager.walletMain.receive}
           color={ThemeManager.colors.blackWhiteText}
           onPress={() => props.onPressReceive()} />
-
+        {/* 
         <PortfolioButton
           image={Images.walletBuyIcon}
           text={LanguageManager.contactUs.buySell}
-          onPress={() => props.onPressBuySell()} />
+          onPress={() => props.onPressBuySell()} /> */}
 
         <PortfolioButton
           image={Images.walletTradeIcon}

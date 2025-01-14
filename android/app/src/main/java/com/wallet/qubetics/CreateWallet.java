@@ -63,6 +63,14 @@ public class CreateWallet extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void clearGarbageCollection() {
+        Log.d("clearGarbageCollection", "clearGarbageCollection called");
+        System.runFinalization();
+        Runtime.getRuntime().gc();
+        System.gc();
+    }
+
+    @ReactMethod
     public void signSolanaTransaction(String pvtKey, String toAddress, String amount, String recentBlockhash, Callback callback){
         HDWallet hdWallet = new HDWallet(pvtKey, "");
         CoinType coinSol = CoinType.SOLANA;

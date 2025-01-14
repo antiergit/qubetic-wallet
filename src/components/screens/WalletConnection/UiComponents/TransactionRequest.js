@@ -179,7 +179,7 @@ class TransactionRequest extends Component {
 
             } else {
 
-                const pKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
+                let pKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
 
                 console.log("VALUE>>>>", this.state.transactionData?.value, this.hex2dec(this.state.transactionData?.value));
 
@@ -223,13 +223,14 @@ class TransactionRequest extends Component {
                                 : "pol"
                     ).then(serializedTx => {
                         console.log("res>>>", serializedTx);
+                        pKey = ""
                         if (serializedTx != null) {
-
                             this.sendCoin(serializedTx, nonce);
                         }
                     })
                     .catch(err => {
                         console.log("ERR>>>", err);
+                        pKey = ""
                         this.setState({ isLoading: false, });
                     })
             }

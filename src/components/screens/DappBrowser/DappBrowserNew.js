@@ -512,16 +512,8 @@ class DappBrowserNew extends Component {
   /******************************************************************************************/
   async signRawTxn(pin) {
     //isVisible: true,
-    let pKey = ""
-    try {
-
-      this.setState({ isLoading: true, });
-      pKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
-    } catch (error) {
-      this.setState({ isLoading: false, });
-    }
-    // console.log("pKey>>>>>", pKey, "address>>>", Singleton.getInstance().defaultEthAddress, pin);
-
+    this.setState({ isLoading: true, });
+    let pKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
     const gasLimit = this.state.signingData.object.gas; // in hex
     const gasPrice =
       this.state.selectedNetwork == "Binance"
@@ -561,8 +553,11 @@ class DappBrowserNew extends Component {
             }, 'Something went wrong.')`;
           this.webview?.injectJavaScript(js);
         }
+        pKey = ""
       }).catch(err => {
         this.setState({ isLoading: false });
+        pKey = ""
+
       });
   }
 
@@ -1700,19 +1695,13 @@ class DappBrowserNew extends Component {
                     ) {
                       const message = this.state.signedData;
                       let mmid = message.id;
-                      let pKey = "";
-                      try {
-                        pKey = await getEncryptedData(
-                          `${Singleton.getInstance().defaultEthAddress}_pk`,
-                          pin
-                        );
-                      } catch (error) { }
-
+                      let pKey = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
                       let signedMessage =
                         await Singleton.getInstance().signPersonalMessage(
                           message?.object?.data,
                           pKey
                         );
+                      pKey = ""
                       let js = `trustwallet.${message?.network}.sendResponse(${mmid}, "${signedMessage}")`;
                       this.webview?.injectJavaScript(js);
                     } else if (this.state.msgType == "signTypedMessage") {
@@ -1739,15 +1728,8 @@ class DappBrowserNew extends Component {
 
                       console.log("---------newParams:::::", newParams);
                       setTimeout(async () => {
-                        // getData(`${Singleton.getInstance().defaultEthAddress}_pk`).then(
-                        //   async (privateKey) => {
-                        let pvt_key = "";
-                        try {
-                          pvt_key = await getEncryptedData(
-                            `${Singleton.getInstance().defaultEthAddress}_pk`,
-                            pin
-                          );
-                        } catch (error) { }
+                        let pvt_key = await getEncryptedData(`${Singleton.getInstance().defaultEthAddress}_pk`, pin);
+
                         Singleton.getInstance()
                           .dappApprovalHash(pvt_key, newParams)
                           .then((res) => {
@@ -1756,8 +1738,11 @@ class DappBrowserNew extends Component {
                             let js = `trustwallet.ethereum.sendResponse(${mmid}, "${res}")`;
                             this.webview?.injectJavaScript(js);
                             this.setState({ loading: false });
+                            pvt_key = ""
+
                           })
                           .catch((err) => {
+                            pvt_key = ""
                             console.log("err::::::::", err);
                           });
                         //   }

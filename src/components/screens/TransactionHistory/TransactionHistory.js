@@ -814,7 +814,7 @@ class TransactionHistory extends Component {
                     }}
                   />
 
-                  <PortfolioButton
+                  {/* <PortfolioButton
                     image={Images.walletBuyIcon}
                     text={LanguageManager.contactUs.buySell}
                     onPress={() => {
@@ -852,7 +852,7 @@ class TransactionHistory extends Component {
                       ...styles.sendReceiveBtnWrap,
                       borderColor: ThemeManager.colors.darkBg,
                     }}
-                  />
+                  /> */}
                   {this.state.isSwapAvailable &&
                     <PortfolioButton
                       image={Images.walletTradeIcon}
